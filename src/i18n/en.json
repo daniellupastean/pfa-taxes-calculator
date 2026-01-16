@@ -1,0 +1,196 @@
+{
+  "nav": {
+    "home": "Home"
+  },
+  "navigation": {
+    "title": "Romanian PFA Tax Calculator",
+    "subtitle": "Real system - Estimate for planning",
+    "settings": "Settings",
+    "backToHome": "Back to calculator",
+    "blog": "Blog"
+  },
+  "home": {
+    "inputSection": {
+      "title": "Input Data",
+      "grossIncome": {
+        "label": "Annual Gross Income",
+        "helper": "Total income received in {{year}}"
+      },
+      "deductibleExpenses": {
+        "label": "Annual Deductible Expenses",
+        "helper": "Expenses justified according to legislation"
+      },
+      "employee": {
+        "label": "I am insured as an employee",
+        "helper": "Exempt from CASS for income below {{threshold}} minimum wages"
+      },
+      "pensioner": {
+        "label": "I am a pensioner",
+        "helper": "Exempt from CAS; exempt from CASS for income below {{threshold}} minimum wages"
+      }
+    },
+    "scenarios": {
+      "title": "Planning Scenarios",
+      "description": "Save and compare different income configurations for better planning. Ideal for seeing the tax impact of different income or expense levels.",
+      "saveLabel": "Save current scenario",
+      "namePlaceholder": "Scenario name...",
+      "saveButton": "Save",
+      "maxScenariosNote": "Maximum {{count}} scenarios. The oldest will be automatically deleted.",
+      "emptyState": {
+        "title": "No saved scenarios yet",
+        "description": "Save the current configuration to compare it later."
+      },
+      "table": {
+        "scenario": "Scenario",
+        "grossIncome": "Gross Income",
+        "netIncome": "Net Income",
+        "totalTaxes": "Total Taxes",
+        "effectiveRate": "Effective Rate",
+        "actions": "Actions"
+      },
+      "actions": {
+        "load": "Load scenario",
+        "delete": "Delete scenario"
+      }
+    },
+    "results": {
+      "title": "Calculation Results",
+      "effectiveRate": "Effective Tax Rate",
+      "netIncome": {
+        "label": "Net Income",
+        "tooltip": "Income after deducting deductible expenses"
+      },
+      "cas": {
+        "label": "CAS (25%)",
+        "tooltip": "Pension contribution - 25% of calculation base",
+        "base": "Base"
+      },
+      "cass": {
+        "label": "CASS (10%)",
+        "tooltip": {
+          "title": "Health Insurance Contribution",
+          "rulesEmployee": "Rules for employees/pensioners:",
+          "rulesNonEmployee": "Calculation base depends on income:",
+          "exempt": "exempt",
+          "maxCap": "Maximum cap"
+        },
+        "base": "Base"
+      },
+      "taxableIncome": {
+        "label": "Taxable Income",
+        "tooltip": "Tax calculation base (net income - CAS - CASS)"
+      },
+      "incomeTax": {
+        "label": "Income Tax (10%)",
+        "tooltip": "10% of taxable income"
+      },
+      "totalTaxes": {
+        "label": "Total Taxes and Contributions",
+        "tooltip": "Total amount paid to the state"
+      },
+      "netAfterTaxes": {
+        "label": "Take Home",
+        "tooltip": "Net income after all taxes and contributions",
+        "monthlyDescription": "Available income / 12 months",
+        "annualDescription": "Gross income - Total taxes"
+      },
+      "effectiveTaxRate": {
+        "label": "Effective Tax Rate",
+        "tooltip": "Total percentage of gross income paid as taxes"
+      },
+      "viewToggle": {
+        "annual": "Annual",
+        "monthly": "Monthly"
+      }
+    },
+    "chart": {
+      "title": "Effective Tax Rate Evolution",
+      "xAxis": "Annual Gross Income",
+      "yAxis": "Effective Rate (%)",
+      "currentPoint": "Your Current Point",
+      "currentRate": "your current rate",
+      "thresholds": {
+        "cassMin": "Minimum CASS Threshold",
+        "cassMax": "Maximum CASS Cap",
+        "cas": "CAS Threshold"
+      },
+      "note": {
+        "prefix": "ℹ️ Note:",
+        "text": "For income below 6 minimum wages ({{amount}}), minimum CASS is {{cassMin}}, which can create a higher effective rate at low incomes."
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "fiscalYear": {
+      "title": "Fiscal Year",
+      "label": "Select year for calculations"
+    },
+    "exchangeRates": {
+      "title": "Exchange Rates",
+      "updated": "Updated",
+      "source": "Source",
+      "ecbTitle": "European Central Bank - Euro foreign exchange reference rates",
+      "ecbName": "European Central Bank"
+    },
+    "advanced": {
+      "title": "Advanced Settings",
+      "resetButton": "Reset to defaults",
+      "resetTooltip": "Reset all values to default settings for the selected year",
+      "minimumWage": {
+        "title": "Monthly Minimum Wage",
+        "subtitle": "(always in RON)",
+        "default": "Default {{year}}"
+      },
+      "cas": {
+        "title": "CAS Thresholds (Social Insurance Contribution)",
+        "description": "Income range for CAS calculation",
+        "minimum": "Minimum",
+        "maximum": "Maximum"
+      },
+      "cass": {
+        "title": "CASS Configuration (Health Insurance Contribution)",
+        "description": "Minimum threshold for non-employees/non-pensioners, maximum cap for everyone",
+        "minThreshold": "Minimum threshold (for non-employees below this level)",
+        "minThresholdHelper": "Minimum base",
+        "maxCap": "Maximum cap (limits base)",
+        "limit": "Limit"
+      }
+    }
+  },
+  "footer": {
+    "createdBy": "Created by Daniel Lupastean",
+    "copyright": "© {{year}} · Romanian PFA Tax Calculator · Open source"
+  },
+  "common": {
+    "currency": "RON",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "salaries": "salaries",
+    "minimumSalaries": "minimum salaries",
+    "base": "base",
+    "below": "Below",
+    "above": "Above",
+    "fromRealNetIncome": "from real net income"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Articles about PFA, taxes and fiscal optimization",
+    "backToBlog": "Back to blog",
+    "readNext": "Read Next",
+    "emptyState": {
+      "title": "No articles available",
+      "description": "Check back soon for new articles about PFA and taxes."
+    },
+    "notFound": {
+      "title": "Article not found",
+      "description": "The article you're looking for doesn't exist or has been deleted."
+    }
+  }
+}

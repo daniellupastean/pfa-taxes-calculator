@@ -1,0 +1,196 @@
+{
+  "nav": {
+    "home": "Acasă"
+  },
+  "navigation": {
+    "title": "Calculator Taxe PFA România",
+    "subtitle": "Sistem real - Estimare pentru planificare",
+    "settings": "Setări",
+    "backToHome": "Înapoi la calculator",
+    "blog": "Blog"
+  },
+  "home": {
+    "inputSection": {
+      "title": "Date de intrare",
+      "grossIncome": {
+        "label": "Venit brut anual",
+        "helper": "Venitul total încasat în anul {{year}}"
+      },
+      "deductibleExpenses": {
+        "label": "Cheltuieli deductibile anuale",
+        "helper": "Cheltuieli justificate conform legislației"
+      },
+      "employee": {
+        "label": "Sunt asigurat ca salariat",
+        "helper": "Scutit de CASS la venit sub {{threshold}} salarii minime"
+      },
+      "pensioner": {
+        "label": "Sunt pensionar",
+        "helper": "Scutit de CAS; scutit de CASS la venit sub {{threshold}} salarii minime"
+      }
+    },
+    "scenarios": {
+      "title": "Scenarii de planificare",
+      "description": "Salvează și compară diferite configurații de venit pentru a planifica mai bine. Ideal pentru a vedea impactul fiscal al diferitelor niveluri de venit sau cheltuieli.",
+      "saveLabel": "Salvează scenariul curent",
+      "namePlaceholder": "Nume scenariu...",
+      "saveButton": "Salvează",
+      "maxScenariosNote": "Maxim {{count}} scenarii. Cele mai vechi vor fi șterse automat.",
+      "emptyState": {
+        "title": "Niciun scenariu salvat încă",
+        "description": "Salvează configurația curentă pentru a o compara mai târziu."
+      },
+      "table": {
+        "scenario": "Scenariu",
+        "grossIncome": "Venit brut",
+        "netIncome": "Venit net",
+        "totalTaxes": "Total taxe",
+        "effectiveRate": "Rată efectivă",
+        "actions": "Acțiuni"
+      },
+      "actions": {
+        "load": "Încarcă scenariu",
+        "delete": "Șterge scenariu"
+      }
+    },
+    "results": {
+      "title": "Rezultate calcul",
+      "effectiveRate": "Rată efectivă de taxare",
+      "netIncome": {
+        "label": "Venit net",
+        "tooltip": "Venitul după scăderea cheltuielilor deductibile"
+      },
+      "cas": {
+        "label": "CAS (25%)",
+        "tooltip": "Contribuție pentru pensie - 25% din baza de calcul",
+        "base": "Bază"
+      },
+      "cass": {
+        "label": "CASS (10%)",
+        "tooltip": {
+          "title": "Contribuție Asigurări Sociale de Sănătate",
+          "rulesEmployee": "Reguli pentru angajați/pensionari:",
+          "rulesNonEmployee": "Baza de calcul depinde de venit:",
+          "exempt": "scutit",
+          "maxCap": "Plafon maxim"
+        },
+        "base": "Bază"
+      },
+      "taxableIncome": {
+        "label": "Venit impozabil",
+        "tooltip": "Baza de calcul pentru impozit (venit net - CAS - CASS)"
+      },
+      "incomeTax": {
+        "label": "Impozit pe venit (10%)",
+        "tooltip": "10% din venitul impozabil"
+      },
+      "totalTaxes": {
+        "label": "Total taxe și contribuții",
+        "tooltip": "Suma totală plătită către stat"
+      },
+      "netAfterTaxes": {
+        "label": "Rămâne în buzunar",
+        "tooltip": "Venitul net după toate taxele și contribuțiile",
+        "monthlyDescription": "Venit disponibil / 12 luni",
+        "annualDescription": "Venit brut - Total taxe"
+      },
+      "effectiveTaxRate": {
+        "label": "Rată efectivă de taxare",
+        "tooltip": "Procentul total din venitul brut plătit ca taxe"
+      },
+      "viewToggle": {
+        "annual": "Anual",
+        "monthly": "Lunar"
+      }
+    },
+    "chart": {
+      "title": "Evoluția ratei efective de taxare",
+      "xAxis": "Venit brut anual",
+      "yAxis": "Rată efectivă (%)",
+      "currentPoint": "Punctul tău curent",
+      "currentRate": "rata ta curentă",
+      "thresholds": {
+        "cassMin": "Prag minim CASS",
+        "cassMax": "Plafon maxim CASS",
+        "cas": "Prag CAS"
+      },
+      "note": {
+        "prefix": "ℹ️ Notă:",
+        "text": "Pentru venituri sub 6 salarii minime ({{amount}}), CASS minim este {{cassMin}}, ceea ce poate crea o rată efectivă mai mare la venituri mici."
+      }
+    }
+  },
+  "settings": {
+    "title": "Setări",
+    "fiscalYear": {
+      "title": "An fiscal",
+      "label": "Selectează anul pentru calcule"
+    },
+    "exchangeRates": {
+      "title": "Rate de schimb",
+      "updated": "Actualizat",
+      "source": "Sursa",
+      "ecbTitle": "European Central Bank - Euro foreign exchange reference rates",
+      "ecbName": "Banca Centrală Europeană"
+    },
+    "advanced": {
+      "title": "Configurări avansate",
+      "resetButton": "Reset la valori default",
+      "resetTooltip": "Resetează toate valorile la configurările implicite pentru anul selectat",
+      "minimumWage": {
+        "title": "Salariu minim lunar",
+        "subtitle": "(mereu în RON)",
+        "default": "Default {{year}}"
+      },
+      "cas": {
+        "title": "Praguri CAS (Contribuție Asigurări Sociale)",
+        "description": "Intervalul de venituri pentru calculul CAS",
+        "minimum": "Minim",
+        "maximum": "Maxim"
+      },
+      "cass": {
+        "title": "Configurare CASS (Contribuție Asigurări Sociale de Sănătate)",
+        "description": "Prag minim pentru non-angajați/non-pensionari, plafon maxim pentru toată lumea",
+        "minThreshold": "Prag minim (pentru non-angajați sub acest nivel)",
+        "minThresholdHelper": "Bază minimă",
+        "maxCap": "Plafon maxim (limitează baza)",
+        "limit": "Limită"
+      }
+    }
+  },
+  "footer": {
+    "createdBy": "Creat de Daniel Lupastean",
+    "copyright": "© {{year}} · Calculator taxe PFA România · Open source"
+  },
+  "common": {
+    "currency": "lei",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "close": "Închide",
+    "loading": "Se încarcă...",
+    "error": "Eroare",
+    "success": "Succes",
+    "salaries": "salarii",
+    "minimumSalaries": "salarii minime",
+    "base": "baza",
+    "below": "Sub",
+    "above": "Peste",
+    "fromRealNetIncome": "din venitul net real"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Articole despre PFA, taxe și optimizare fiscală",
+    "backToBlog": "Înapoi la blog",
+    "readNext": "Citește și",
+    "emptyState": {
+      "title": "Niciun articol disponibil",
+      "description": "Revino în curând pentru articole noi despre PFA și taxe."
+    },
+    "notFound": {
+      "title": "Articol negăsit",
+      "description": "Articolul pe care îl cauți nu există sau a fost șters."
+    }
+  }
+}

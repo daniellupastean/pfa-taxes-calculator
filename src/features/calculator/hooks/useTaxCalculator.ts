@@ -6,7 +6,7 @@ import {
   type Currency,
 } from '../../../shared/contexts';
 import { TaxCalculationService, TaxInput } from '../../../domain';
-import { getTaxRulesForYear } from '../../../tax-rules';
+import { getTaxRulesForYear } from '../../../data/tax-configurations';
 import type { PlainTaxResult } from '../../../domain/tax/models';
 
 export function useTaxCalculator() {

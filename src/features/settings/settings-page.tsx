@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCurrency, useSettings, useAdvancedConfig } from '../../shared/contexts';
-import { availableYears, getTaxRulesForYear } from '../../tax-rules';
+import { availableYears, getTaxRulesForYear } from '../../data/tax-configurations';
 import { ArrowLeft, RotateCcw, TrendingUp } from 'lucide-react';
 import { MoneyInput, NumberInput, Select, IconButton } from '../../shared/components/ui';
 import { TopNavigation, Footer } from '../../shared/components/layout';

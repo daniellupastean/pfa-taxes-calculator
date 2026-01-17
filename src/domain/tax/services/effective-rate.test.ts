@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { TaxCalculationService } from './tax-calculation.service';
 import { TaxInput } from '../models';
 import { Money } from '../value-objects';
-import { rules2025 } from '../../../tax-rules/2025';
+import { rules2025 } from '../../../data/tax-configurations/2025';
 
 describe('Effective Tax Rate - CASS Cap at 72 Minimum Wages', () => {
   const service = new TaxCalculationService();

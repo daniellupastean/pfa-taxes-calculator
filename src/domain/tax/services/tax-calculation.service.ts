@@ -1,4 +1,4 @@
-import type { TaxRules } from '../../../tax-rules';
+import type { TaxRules } from '../../../data/tax-configurations';
 import { Money, TaxRate } from '../value-objects';
 import { TaxInput, TaxBreakdown, TaxResult } from '../models';
 import {

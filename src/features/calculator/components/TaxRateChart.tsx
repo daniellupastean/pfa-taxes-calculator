@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TaxCalculationService, TaxInput } from '../../../domain';
-import { getTaxRulesForYear } from '../../../tax-rules';
+import { getTaxRulesForYear } from '../../../data/tax-configurations';
 import type { PlainTaxInput, PlainTaxResult } from '../../../domain/tax/models';
 import {
   useSettings,

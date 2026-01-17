@@ -42,7 +42,7 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
 
   const cassTooltipContent = (
     <div className="space-y-1.5">
-      <div className="font-semibold" style={{ color: 'var(--color-accent-primary)' }}>
+      <div className="font-semibold text-accent-primary">
         {t('home.results.cass.tooltip.title')}
       </div>
       {isEmployee || isPensioner ? (
@@ -84,10 +84,7 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
   );
 
   return (
-    <div
-      className="rounded-xl p-6 mb-6 border-glow card-hover animate-fade-up"
-      style={{ backgroundColor: 'var(--color-panel)', border: '1px solid var(--color-border)' }}
-    >
+    <div className="rounded-xl p-6 mb-6 border-glow card-hover animate-fade-up bg-panel border border-border">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold gradient-text">{t('home.results.title')}</h2>
@@ -109,14 +106,11 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           <Tooltip
             text={showCIM ? 'Salariu net după toate taxele' : t('home.results.netIncome.tooltip')}
           >
-            <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            <span className="text-sm font-medium text-text-secondary">
               {showCIM ? 'Salariu Net (CIM)' : t('home.results.netIncome.label')}
             </span>
           </Tooltip>
-          <span
-            className="font-mono font-semibold text-lg"
-            style={{ color: 'var(--color-accent-primary)' }}
-          >
+          <span className="font-mono font-semibold text-lg text-accent-primary">
             {format(showCIM ? cimBreakdown.netSalary : breakdown.netIncome)}
           </span>
         </div>
@@ -127,16 +121,13 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
               {t('home.results.cas.label')}
               {!showCIM && breakdown.casBase > 0 && (
-                <span
-                  className="text-xs block font-mono mt-0.5"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <span className="text-xs block font-mono mt-0.5 text-text-muted">
                   {t('home.results.cas.base')}: {format(breakdown.casBase)}
                 </span>
               )}
             </span>
           </Tooltip>
-          <span className="font-mono font-medium" style={{ color: 'var(--color-danger)' }}>
+          <span className="font-mono font-medium text-danger">
             {format(showCIM ? cimBreakdown.cas : breakdown.cas)}
           </span>
         </div>
@@ -166,10 +157,7 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
 
         {/* Taxable Income / Personal Deduction (CIM only) */}
         {showCIM && (
-          <div
-            className="flex justify-between items-center pb-3 mt-2"
-            style={{ borderBottom: '1px solid var(--color-border)' }}
-          >
+          <div className="flex justify-between items-center pb-3 mt-2 border-b border-border">
             <Tooltip text="Deducere personală lunară × 12">
               <span
                 className="text-sm font-medium"
@@ -178,16 +166,13 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
                 Deducere Personală
               </span>
             </Tooltip>
-            <span className="font-mono font-semibold" style={{ color: 'var(--color-success)' }}>
+            <span className="font-mono font-semibold text-success">
               {format(cimBreakdown.personalDeduction)}
             </span>
           </div>
         )}
 
-        <div
-          className="flex justify-between items-center pb-3 mt-2"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
+        <div className="flex justify-between items-center pb-3 mt-2 border-b border-border">
           <Tooltip
             text={
               showCIM
@@ -199,15 +184,12 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
               {t('home.results.taxableIncome.label')}
             </span>
           </Tooltip>
-          <span className="font-mono font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+          <span className="font-mono font-semibold text-text-primary">
             {format(showCIM ? cimBreakdown.taxableIncome : breakdown.taxableIncome)}
           </span>
         </div>
 
-        <div
-          className="flex justify-between items-center pb-4"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
+        <div className="flex justify-between items-center pb-4 border-b border-border">
           <Tooltip text={t('home.results.incomeTax.tooltip')}>
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
               {t('home.results.incomeTax.label')}
@@ -220,27 +202,21 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
 
         <div className="flex justify-between items-center pt-3">
           <Tooltip text={t('home.results.totalTaxes.tooltip')}>
-            <span
-              className="text-base font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+            <span className="text-base font-semibold text-text-primary">
               {t('home.results.totalTaxes.label')}
             </span>
           </Tooltip>
-          <span className="text-xl font-bold font-mono" style={{ color: 'var(--color-danger)' }}>
+          <span className="text-xl font-bold font-mono text-danger">
             {format(showCIM ? cimBreakdown.totalTaxes : breakdown.total)}
           </span>
         </div>
 
-        <div className="pt-4 mt-4" style={{ borderTop: '2px solid var(--color-border)' }} />
+        <div className="pt-4 mt-4 border-t-2 border-border" />
 
         <div className="pt-2">
           <div className="flex items-center justify-between mb-3">
             <Tooltip text={t('home.results.netAfterTaxes.tooltip')}>
-              <span
-                className="text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+              <span className="text-base font-semibold text-text-primary">
                 {t('home.results.netAfterTaxes.label')}
               </span>
             </Tooltip>
@@ -256,15 +232,12 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           </div>
 
           <div className="flex justify-between items-end">
-            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            <span className="text-xs text-text-muted">
               {showMonthlyView
                 ? t('home.results.netAfterTaxes.monthlyDescription')
                 : t('home.results.netAfterTaxes.annualDescription')}
             </span>
-            <span
-              className="text-3xl font-bold font-mono"
-              style={{ color: 'var(--color-success)' }}
-            >
+            <span className="text-3xl font-bold font-mono text-success">
               {format(
                 showMonthlyView
                   ? (showCIM ? cimBreakdown.netSalary : breakdown.netIncome - breakdown.total) / 12

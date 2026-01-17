@@ -57,16 +57,13 @@ export const TaxForm: React.FC<TaxFormProps> = ({
             type="checkbox"
             checked={isEmployee}
             onChange={(e) => onIsEmployeeChange(e.target.checked)}
-            className="mr-3 h-4 w-4 rounded"
-            style={{
-              accentColor: 'var(--color-accent-primary)',
-            }}
+            className="mr-3 h-4 w-4 rounded accent-accent-primary"
           />
-          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <span className="text-sm text-text-secondary">
             {t('home.inputSection.employee.label')}
           </span>
         </label>
-        <p className="text-xs mt-1 ml-7" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-xs mt-1 ml-7 text-text-muted">
           {t('home.inputSection.employee.helper', { threshold: 6 })}
         </p>
       </div>
@@ -77,16 +74,13 @@ export const TaxForm: React.FC<TaxFormProps> = ({
             type="checkbox"
             checked={isPensioner}
             onChange={(e) => onIsPensionerChange(e.target.checked)}
-            className="mr-3 h-4 w-4 rounded"
-            style={{
-              accentColor: 'var(--color-accent-primary)',
-            }}
+            className="mr-3 h-4 w-4 rounded accent-accent-primary"
           />
-          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <span className="text-sm text-text-secondary">
             {t('home.inputSection.pensioner.label')}
           </span>
         </label>
-        <p className="text-xs mt-1 ml-7" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-xs mt-1 ml-7 text-text-muted">
           {t('home.inputSection.pensioner.helper', { threshold: 6 })}
         </p>
       </div>

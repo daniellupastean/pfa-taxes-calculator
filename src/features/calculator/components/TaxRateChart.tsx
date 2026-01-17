@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { computeTaxes } from '../../../domain';
+import { TaxCalculationService, TaxInput } from '../../../domain';
 import { getTaxRulesForYear } from '../../../tax-rules';
-import type { PlainTaxInput } from '../../../domain/tax/models';
+import type { PlainTaxInput, PlainTaxResult } from '../../../domain/tax/models';
 import {
   useSettings,
   useCurrency,
@@ -26,6 +26,9 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     customCassMinThreshold,
     customCassMaxCap,
   } = useAdvancedConfig();
+
+  // Instantiate service
+  const taxService = useMemo(() => new TaxCalculationService(), []);
 
   const [chartCurrency, setChartCurrency] = useState<Currency>('RON');
 
@@ -98,14 +101,19 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     const data = uniquePoints.map((income) => {
       const deductibleExpenses = income * deductibleExpensesRate;
 
-      const result = computeTaxes(
-        {
-          ...currentInput,
-          grossIncome: income,
-          deductibleExpenses: deductibleExpenses,
+      const taxInput = TaxInput.create({
+        ...currentInput,
+        grossIncome: income,
+        deductibleExpenses: deductibleExpenses,
+        configOverrides: {
+          minimumWageMonthly: customMinWage,
+          casThresholds: [customCasThreshold1, customCasThreshold2],
+          cassThresholds: [customCassMinThreshold],
+          cassMaxCap: customCassMaxCap,
         },
-        currentRules
-      );
+      });
+
+      const result = taxService.calculate(taxInput, currentRules).toPlainObject();
 
       const effectiveRate = income > 0 ? (result.breakdown.total / income) * 100 : 0;
       return {
@@ -116,11 +124,39 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     });
 
     return data;
-  }, [currentInput, currentRules, thresholds]);
+  }, [
+    currentInput,
+    currentRules,
+    thresholds,
+    customMinWage,
+    customCasThreshold1,
+    customCasThreshold2,
+    customCassMinThreshold,
+    customCassMaxCap,
+    taxService,
+  ]);
 
-  const currentResult = useMemo(() => {
-    return computeTaxes(currentInput, currentRules);
-  }, [currentInput, currentRules]);
+  const currentResult = useMemo<PlainTaxResult>(() => {
+    const taxInput = TaxInput.create({
+      ...currentInput,
+      configOverrides: {
+        minimumWageMonthly: customMinWage,
+        casThresholds: [customCasThreshold1, customCasThreshold2],
+        cassThresholds: [customCassMinThreshold],
+        cassMaxCap: customCassMaxCap,
+      },
+    });
+    return taxService.calculate(taxInput, currentRules).toPlainObject();
+  }, [
+    currentInput,
+    currentRules,
+    customMinWage,
+    customCasThreshold1,
+    customCasThreshold2,
+    customCassMinThreshold,
+    customCassMaxCap,
+    taxService,
+  ]);
 
   const currentEffectiveRate =
     currentInput.grossIncome > 0

@@ -1,6 +1,21 @@
 @import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
+@theme {
+  --color-void: var(--color-void);
+  --color-surface: var(--color-surface);
+  --color-panel: var(--color-panel);
+  --color-accent-primary: var(--color-accent-primary);
+  --color-accent-secondary: var(--color-accent-secondary);
+  --color-success: var(--color-success);
+  --color-danger: var(--color-danger);
+  --color-warning: var(--color-warning);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-border: var(--color-border);
+}
+
 /* Dark theme - default */
 :root,
 [data-theme='dark'] {
@@ -10,9 +25,12 @@
   --color-panel: #111111;
 
   /* Yellow/Gold accents - replacing cyan */
-  --color-accent-primary: #fbbf24; /* Warm yellow */
-  --color-accent-secondary: #f59e0b; /* Amber */
-  --color-accent-tertiary: #d97706; /* Dark amber */
+  --color-accent-primary: #fbbf24;
+  /* Warm yellow */
+  --color-accent-secondary: #f59e0b;
+  /* Amber */
+  --color-accent-tertiary: #d97706;
+  /* Dark amber */
 
   /* Success (green) */
   --color-success: #00d47e;
@@ -207,11 +225,6 @@ input:disabled {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Card hover effect for light mode - removed translateY for consistency */
-[data-theme='light'] .card-hover:hover {
-  /* No transform effect */
-}
-
 /* Gradient text for light mode */
 [data-theme='light'] .gradient-text {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -239,14 +252,17 @@ input:disabled {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-accent-primary);
   opacity: 0.3;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   opacity: 0.6;
 }
@@ -257,6 +273,7 @@ input:disabled {
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -272,6 +289,7 @@ input:disabled {
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -280,12 +298,4 @@ input:disabled {
 
 .animate-fade-up {
   animation: fade-up 0.6s ease-out forwards;
-}
-
-/* Card hover effect - removed translateY for consistency */
-.card-hover {
-  transition: all 0.3s ease;
-}
-.card-hover:hover {
-  /* No transform effect */
 }

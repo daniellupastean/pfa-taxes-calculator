@@ -78,19 +78,13 @@ export const MoneyInput: React.FC<MoneyInputProps> = ({
     }
 
     if (e) {
-      e.target.style.borderColor = error ? 'var(--color-danger)' : 'var(--color-border)';
-      e.target.style.boxShadow = 'none';
+      // styles handled by Tailwind classes now
     }
   };
 
   return (
     <div className="mb-5">
-      <label
-        className="block text-sm font-medium mb-2"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        {label}
-      </label>
+      <label className="block text-sm font-medium mb-2 text-text-secondary">{label}</label>
       <div className="relative">
         <input
           type="text"
@@ -99,34 +93,18 @@ export const MoneyInput: React.FC<MoneyInputProps> = ({
           onChange={handleChange}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="w-full px-4 py-3 rounded-lg focus:outline-none transition-all font-mono"
-          style={{
-            border: error ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-text-primary)',
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = 'var(--color-accent-primary)';
-            e.target.style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.1)';
-          }}
+          className={`w-full px-4 py-3 rounded-lg focus:outline-none transition-all font-mono border bg-surface text-text-primary ${
+            error
+              ? 'border-danger focus:border-danger'
+              : 'border-border focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/10'
+          }`}
         />
-        <span
-          className="absolute right-4 top-3 text-sm font-mono"
-          style={{ color: 'var(--color-text-muted)' }}
-        >
+        <span className="absolute right-4 top-3 text-sm font-mono text-text-muted">
           {currencySymbols[effectiveCurrency]}
         </span>
       </div>
-      {helperText && !error && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          {helperText}
-        </p>
-      )}
-      {error && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--color-danger)' }}>
-          {error}
-        </p>
-      )}
+      {helperText && !error && <p className="mt-2 text-xs text-text-muted">{helperText}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
     </div>
   );
 };

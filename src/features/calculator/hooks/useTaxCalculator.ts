@@ -5,7 +5,7 @@ import {
   useAdvancedConfig,
   type Currency,
 } from '../../../shared/contexts';
-import { computeTaxes } from '../../../domain';
+import { TaxCalculationService, TaxInput } from '../../../domain';
 import { getTaxRulesForYear } from '../../../tax-rules';
 import type { PlainTaxResult } from '../../../domain/tax/models';
 
@@ -25,6 +25,9 @@ export function useTaxCalculator() {
     setCustomCassMaxCap,
     resetToDefaults,
   } = useAdvancedConfig();
+
+  // Instantiate service
+  const taxService = useMemo(() => new TaxCalculationService(), []);
 
   const [grossIncome, setGrossIncome] = useState<number | null>(null);
   const [deductibleExpenses, setDeductibleExpenses] = useState<number | null>(null);
@@ -69,23 +72,22 @@ export function useTaxCalculator() {
     const grossIncomeRON = convertToRON(grossIncome ?? 0, inputCurrency);
     const deductibleExpensesRON = convertToRON(deductibleExpenses ?? 0, inputCurrency);
 
-    return computeTaxes(
-      {
-        year: selectedYear,
-        grossIncome: grossIncomeRON,
-        deductibleExpenses: deductibleExpensesRON,
-        isVatPayer: false,
-        isEmployee,
-        isPensioner,
-        configOverrides: {
-          minimumWageMonthly: customMinWage,
-          casThresholds: [customCasThreshold1, customCasThreshold2],
-          cassThresholds: [customCassMinThreshold],
-          cassMaxCap: customCassMaxCap,
-        },
+    const taxInput = TaxInput.create({
+      year: selectedYear,
+      grossIncome: grossIncomeRON,
+      deductibleExpenses: deductibleExpensesRON,
+      isVatPayer: false,
+      isEmployee,
+      isPensioner,
+      configOverrides: {
+        minimumWageMonthly: customMinWage,
+        casThresholds: [customCasThreshold1, customCasThreshold2],
+        cassThresholds: [customCassMinThreshold],
+        cassMaxCap: customCassMaxCap,
       },
-      currentRules
-    );
+    });
+
+    return taxService.calculate(taxInput, currentRules).toPlainObject();
   }, [
     selectedYear,
     grossIncome,
@@ -100,6 +102,7 @@ export function useTaxCalculator() {
     currentRules,
     convertToRON,
     inputCurrency,
+    taxService,
   ]);
 
   const handleLoadScenario = (result: PlainTaxResult) => {

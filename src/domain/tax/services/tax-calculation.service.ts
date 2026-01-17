@@ -19,11 +19,16 @@ export class TaxCalculationService {
   private readonly incomeTaxService: IncomeTaxCalculationService;
   private readonly explainFormatter: TaxExplainFormatter;
 
-  constructor() {
-    this.casService = new CASCalculationService();
-    this.cassService = new CASSCalculationService();
-    this.incomeTaxService = new IncomeTaxCalculationService();
-    this.explainFormatter = new TaxExplainFormatter();
+  constructor(
+    casService: CASCalculationService = new CASCalculationService(),
+    cassService: CASSCalculationService = new CASSCalculationService(),
+    incomeTaxService: IncomeTaxCalculationService = new IncomeTaxCalculationService(),
+    explainFormatter: TaxExplainFormatter = new TaxExplainFormatter()
+  ) {
+    this.casService = casService;
+    this.cassService = cassService;
+    this.incomeTaxService = incomeTaxService;
+    this.explainFormatter = explainFormatter;
   }
 
   /**

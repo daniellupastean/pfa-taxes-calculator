@@ -13,10 +13,7 @@ export const CalculatorPage: React.FC = () => {
   const { inputs, setters, config, result, handlers } = useTaxCalculator();
 
   return (
-    <div
-      className="min-h-screen grid-overlay flex flex-col"
-      style={{ backgroundColor: 'var(--color-void)' }}
-    >
+    <div className="min-h-screen grid-overlay flex flex-col bg-void">
       <TopNavigation
         title={t('navigation.title')}
         subtitle={t('navigation.subtitle')}

@@ -114,9 +114,14 @@
         "cassMax": "Maximum CASS Cap",
         "cas": "CAS Threshold"
       },
+      "tooltip": {
+        "income": "Income:",
+        "rate": "Rate:",
+        "taxes": "Taxes:"
+      },
       "note": {
-        "prefix": "ℹ️ Note:",
-        "text": "For income below 6 minimum wages ({{amount}}), minimum CASS is {{cassMin}}, which can create a higher effective rate at low incomes."
+        "prefix": "Note:",
+        "text": "For income below 6 minimum wages ({{amount}}), a minimum CASS of {{cassMin}} applies, which may increase the effective tax rate at lower incomes."
       }
     }
   },

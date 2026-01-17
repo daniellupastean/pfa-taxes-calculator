@@ -114,9 +114,36 @@
         "cassMax": "Plafon maxim CASS",
         "cas": "Prag CAS"
       },
+      "tooltip": {
+        "income": "Venit:",
+        "rate": "Rată:",
+        "taxes": "Taxe:"
+      },
       "note": {
-        "prefix": "ℹ️ Notă:",
-        "text": "Pentru venituri sub 6 salarii minime ({{amount}}), CASS minim este {{cassMin}}, ceea ce poate crea o rată efectivă mai mare la venituri mici."
+        "prefix": "Notă:",
+        "text": "Pentru venituri sub 6 salarii minime ({{amount}}), se plătește un CASS minim de {{cassMin}}, ce poate crește rata taxelor la venituri mici."
+      },
+      "controls": {
+        "autoScaleOn": "Scalare automată activată",
+        "autoScaleOff": "Afișare interval complet",
+        "compareCim": "Compară cu CIM"
+      },
+      "zones": {
+        "cassOptional": "CASS opțional",
+        "cassRequired": "CASS obligatoriu",
+        "casRequired": "CAS obligatoriu",
+        "cassFull": "CAS + CASS obligatorii",
+        "cassCapped": "CASS plafonat"
+      },
+      "comparison": {
+        "pfa": "PFA",
+        "cim": "CIM",
+        "difference": "Diferență"
+      },
+      "interestPoints": {
+        "minRate": "Rată minimă",
+        "maxRate": "Rată maximă",
+        "sweetSpot": "Punct optim"
       }
     }
   },

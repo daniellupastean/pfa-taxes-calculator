@@ -64,7 +64,7 @@ export class TaxBreakdown {
       cassBase: this.cassBase.toNumber(),
       cass: this.cass.toNumber(),
       total: this.getTotal().toNumber(),
-      effectiveRate: effectiveRate !== null ? Math.round(effectiveRate * 100) / 100 : null,
+      effectiveRate: effectiveRate,
     };
   }
 

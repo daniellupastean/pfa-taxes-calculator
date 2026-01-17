@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TaxCalculationService, TaxInput } from '../../../domain';
 import { getTaxRulesForYear } from '../../../data/tax-configurations';
@@ -10,6 +10,11 @@ import {
   type Currency,
 } from '../../../shared/contexts';
 import { CurrencySelectorInline } from '../../../shared/components/ui';
+import { useTaxChartData, type ChartDataPoint } from '../hooks/useTaxChartData';
+import { useTaxChartScale } from '../hooks/useTaxChartScale';
+import { ChartTooltip } from './ChartTooltip';
+import { ChartThresholdLine } from './ChartThresholdLine';
+import { ChartZoneBackground } from './ChartZoneBackground';
 
 interface TaxRateChartProps {
   currentInput: PlainTaxInput;
@@ -27,106 +32,44 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     customCassMaxCap,
   } = useAdvancedConfig();
 
-  // Instantiate service
   const taxService = useMemo(() => new TaxCalculationService(), []);
-
   const [chartCurrency, setChartCurrency] = useState<Currency>('RON');
-
   const [hoveredThreshold, setHoveredThreshold] = useState<{
     type: 'CASS' | 'CAS';
     value: number;
     label: string;
     x: number;
   } | null>(null);
+  const [hoveredDataPoint, setHoveredDataPoint] = useState<{
+    point: ChartDataPoint;
+    x: number;
+    y: number;
+    cssX: number;
+    cssY: number;
+  } | null>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const currentRules = getTaxRulesForYear(selectedYear);
 
-  const thresholds = useMemo(() => {
-    return {
-      cass: {
-        minThreshold: customCassMinThreshold * customMinWage,
-        maxCap: customCassMaxCap * customMinWage,
-      },
-      cas: {
-        threshold1: customCasThreshold1 * customMinWage,
-        threshold2: customCasThreshold2 * customMinWage,
-      },
-    };
-  }, [
-    customMinWage,
-    customCasThreshold1,
-    customCasThreshold2,
-    customCassMinThreshold,
-    customCassMaxCap,
-  ]);
+  const thresholds = useMemo(() => ({
+    cass: {
+      minThreshold: customCassMinThreshold * customMinWage,
+      maxCap: customCassMaxCap * customMinWage,
+    },
+    cas: {
+      threshold1: customCasThreshold1 * customMinWage,
+      threshold2: customCasThreshold2 * customMinWage,
+    },
+  }), [customMinWage, customCasThreshold1, customCasThreshold2, customCassMinThreshold, customCassMaxCap]);
 
-  const chartData = useMemo(() => {
-    const maxIncome = 500000;
-    const deductibleExpensesRate =
-      currentInput.grossIncome > 0 ? currentInput.deductibleExpenses / currentInput.grossIncome : 0;
-    const incomePoints: number[] = [];
-    const criticalPoints = [
-      0,
-      thresholds.cass.minThreshold,
-      thresholds.cas.threshold1,
-      thresholds.cas.threshold2,
-      thresholds.cass.maxCap,
-      maxIncome,
-    ].sort((a, b) => a - b);
+  const { maxIncome } = useTaxChartScale({
+    currentIncome: currentInput.grossIncome,
+  });
 
-    for (let i = 0; i < criticalPoints.length - 1; i++) {
-      const start = criticalPoints[i];
-      const end = criticalPoints[i + 1];
-      const intervalSize = end - start;
-      let pointsInInterval;
-      if (intervalSize < 50000) {
-        pointsInInterval = 50;
-      } else if (intervalSize < 100000) {
-        pointsInInterval = 40;
-      } else {
-        pointsInInterval = 30;
-      }
-
-      const step = intervalSize / pointsInInterval;
-
-      for (let j = 0; j <= pointsInInterval; j++) {
-        const income = start + j * step;
-        if (!incomePoints.includes(income)) {
-          incomePoints.push(income);
-        }
-      }
-    }
-
-    const uniquePoints = Array.from(new Set(incomePoints)).sort((a, b) => a - b);
-    const data = uniquePoints.map((income) => {
-      const deductibleExpenses = income * deductibleExpensesRate;
-
-      const taxInput = TaxInput.create({
-        ...currentInput,
-        grossIncome: income,
-        deductibleExpenses: deductibleExpenses,
-        configOverrides: {
-          minimumWageMonthly: customMinWage,
-          casThresholds: [customCasThreshold1, customCasThreshold2],
-          cassThresholds: [customCassMinThreshold],
-          cassMaxCap: customCassMaxCap,
-        },
-      });
-
-      const result = taxService.calculate(taxInput, currentRules).toPlainObject();
-
-      const effectiveRate = income > 0 ? (result.breakdown.total / income) * 100 : 0;
-      return {
-        income,
-        effectiveRate,
-        total: result.breakdown.total,
-      };
-    });
-
-    return data;
-  }, [
+  const chartData = useTaxChartData({
     currentInput,
     currentRules,
+    maxIncome,
     thresholds,
     customMinWage,
     customCasThreshold1,
@@ -134,7 +77,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     customCassMinThreshold,
     customCassMaxCap,
     taxService,
-  ]);
+  });
 
   const currentResult = useMemo<PlainTaxResult>(() => {
     const taxInput = TaxInput.create({
@@ -147,21 +90,11 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
       },
     });
     return taxService.calculate(taxInput, currentRules).toPlainObject();
-  }, [
-    currentInput,
-    currentRules,
-    customMinWage,
-    customCasThreshold1,
-    customCasThreshold2,
-    customCassMinThreshold,
-    customCassMaxCap,
-    taxService,
-  ]);
+  }, [currentInput, currentRules, customMinWage, customCasThreshold1, customCasThreshold2, customCassMinThreshold, customCassMaxCap, taxService]);
 
-  const currentEffectiveRate =
-    currentInput.grossIncome > 0
-      ? (currentResult.breakdown.total / currentInput.grossIncome) * 100
-      : 0;
+  const currentEffectiveRate = currentInput.grossIncome > 0
+    ? (currentResult.breakdown.total / currentInput.grossIncome) * 100
+    : 0;
 
   const width = 900;
   const height = 600;
@@ -169,371 +102,350 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  const maxIncome = 500000;
-  const maxRate = 80;
+  const maxRate = useMemo(() => {
+    let max = 60; // Default visualization limit
 
-  const scaleX = (incomeRON: number) => (incomeRON / maxIncome) * chartWidth;
-  const scaleY = (rate: number) => chartHeight - (rate / maxRate) * chartHeight;
+    // Only scale up if the CURRENT rate is higher than default.
+    // We intentionally ignore spikes in chartData (e.g. at low income) 
+    // to keep the chart readable for the relevant range.
+    if (currentEffectiveRate > max) {
+      max = currentEffectiveRate;
+    }
+
+    // Never scale beyond 150%
+    max = Math.min(max, 150);
+
+    return Math.ceil(max / 10) * 10;
+  }, [currentEffectiveRate]);
+
+  const scaleX = useCallback((incomeRON: number) => (incomeRON / maxIncome) * chartWidth, [maxIncome, chartWidth]);
+  const scaleY = useCallback((rate: number) => chartHeight - (rate / maxRate) * chartHeight, [chartHeight, maxRate]);
 
   const linePath = chartData
-    .map((point, i) => {
-      const x = scaleX(point.income);
-      const y = scaleY(point.effectiveRate);
-      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-    })
+    .map((point, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(point.income)} ${scaleY(point.effectiveRate)}`)
     .join(' ');
 
   const areaPath = `${linePath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
+
   const currentX = scaleX(currentInput.grossIncome);
   const currentY = scaleY(currentEffectiveRate);
 
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!containerRef.current) return;
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const localPt = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+
+    const chartX = localPt.x - padding.left;
+    const chartY = localPt.y - padding.top;
+
+    if (chartX < 0 || chartX > chartWidth) {
+      setHoveredDataPoint(null);
+      return;
+    }
+
+    const incomeThreshold = (chartX / chartWidth) * maxIncome;
+    const closestPoint = chartData.reduce((prev, curr) =>
+      Math.abs(curr.income - incomeThreshold) < Math.abs(prev.income - incomeThreshold) ? curr : prev
+    );
+
+    const pointX = scaleX(closestPoint.income);
+    const pointY = scaleY(closestPoint.effectiveRate);
+
+    // Euclidean distance check to ensure we are close to the line (e.g. within 30px)
+    const dist = Math.sqrt(Math.pow(chartX - pointX, 2) + Math.pow(chartY - pointY, 2));
+
+    if (dist > 50) { // 50px threshold for easier grabbing but strict enough
+      setHoveredDataPoint(null);
+      return;
+    }
+
+    // Get CSS coordinates for tooltip
+    const rect = containerRef.current.getBoundingClientRect();
+    const cssX = e.clientX - rect.left;
+    const cssY = e.clientY - rect.top;
+
+    setHoveredDataPoint({
+      point: closestPoint,
+      x: localPt.x, // SVG x for circle
+      y: localPt.y, // SVG y for circle
+      cssX,         // CSS x for tooltip
+      cssY,         // CSS y for tooltip
+    });
+  };
+
+  const zones = useMemo(() => [
+    { start: 0, end: thresholds.cass.minThreshold, color: '#10b981', opacity: 0.1, label: t('home.chart.zones.cassOptional') },
+    { start: thresholds.cass.minThreshold, end: thresholds.cas.threshold1, color: '#34d399', opacity: 0.2, label: t('home.chart.zones.cassRequired') },
+    { start: thresholds.cas.threshold1, end: thresholds.cas.threshold2, color: '#fbbf24', opacity: 0.2, label: t('home.chart.zones.casRequired') },
+    { start: thresholds.cas.threshold2, end: thresholds.cass.maxCap, color: '#f87171', opacity: 0.2, label: t('home.chart.zones.cassFull') },
+    { start: thresholds.cass.maxCap, end: maxIncome, color: '#10b981', opacity: 0.1, label: t('home.chart.zones.cassCapped') },
+  ], [thresholds, maxIncome, t]);
+
   return (
     <div
-      className="rounded-xl p-6 border-glow card-hover animate-fade-up"
+      className="rounded-xl p-6 border-glow card-hover animate-fade-up relative overflow-hidden"
       style={{
         backgroundColor: 'var(--color-panel)',
         border: '1px solid var(--color-border)',
       }}
     >
-      <div className="flex items-center justify-between mb-6">
+      {/* Standard Header: Consistent with TaxForm */}
+      < div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-6 gap-4" >
         <h2 className="text-2xl font-bold gradient-text">{t('home.chart.title')}</h2>
-        <div className="flex items-center gap-6">
+
+        <div className="flex flex-col items-end gap-2 w-full md:w-auto">
           <CurrencySelectorInline value={chartCurrency} onChange={setChartCurrency} />
-          <div className="text-right">
-            <div
-              className="text-3xl font-bold font-mono"
-              style={{ color: 'var(--color-accent-primary)' }}
-            >
-              {currentEffectiveRate.toFixed(1)}%
-            </div>
-            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {t('home.chart.currentRate')}
-            </div>
-          </div>
         </div>
-      </div>
 
-      <div className="relative" style={{ width: '100%' }}>
-        <svg
-          style={{ width: '100%', height: 'auto', display: 'block' }}
-          viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <defs>
-            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="var(--color-accent-primary)" stopOpacity="0.8" />
-              <stop offset="40%" stopColor="var(--color-accent-primary)" stopOpacity="0.4" />
-              <stop offset="70%" stopColor="var(--color-accent-primary)" stopOpacity="0.15" />
-              <stop offset="100%" stopColor="var(--color-accent-primary)" stopOpacity="0" />
-            </linearGradient>
-            <clipPath id="chartClip">
-              <rect x="0" y="0" width={chartWidth} height={chartHeight} />
-            </clipPath>
-            <mask id="fadeMask">
-              <rect x="0" y="0" width={chartWidth} height={chartHeight} fill="white" />
-              <rect
-                x="0"
-                y="0"
-                width={chartWidth}
-                height={chartHeight * 0.05}
-                fill="url(#fadeGradient)"
-              />
-            </mask>
-            <linearGradient id="fadeGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="black" stopOpacity="0" />
-              <stop offset="100%" stopColor="white" stopOpacity="1" />
-            </linearGradient>
-          </defs>
 
-          <g transform={`translate(${padding.left}, ${padding.top})`}>
-            {Array.from({ length: Math.floor(maxRate / 10) + 1 }, (_, i) => i * 10).map((rate) => (
-              <g key={rate}>
-                <line
-                  x1={0}
-                  y1={scaleY(rate)}
-                  x2={chartWidth}
-                  y2={scaleY(rate)}
-                  stroke="var(--color-border)"
-                  strokeWidth="1"
-                  strokeDasharray="4 4"
-                  opacity="0.3"
-                />
-                <text
-                  x={-10}
-                  y={scaleY(rate)}
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                  fill="var(--color-text-muted)"
-                  fontSize="16"
-                  fontWeight="500"
-                >
-                  {rate}%
-                </text>
+
+      </div >
+
+      <div ref={containerRef} className="relative w-full overflow-visible">
+
+        <div className="relative w-full overflow-visible">
+          <svg
+            className="w-full h-auto block select-none"
+            viewBox={`0 0 ${width} ${height}`}
+            preserveAspectRatio="xMidYMid meet"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setHoveredDataPoint(null)}
+          >
+            <defs>
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="var(--color-accent-primary)" stopOpacity="0.6" />
+                <stop offset="40%" stopColor="var(--color-accent-primary)" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="var(--color-accent-primary)" stopOpacity="0" />
+              </linearGradient>
+              <clipPath id="chartClip">
+                <rect x="0" y="0" width={chartWidth} height={chartHeight} rx="4" />
+              </clipPath>
+            </defs>
+
+            <g transform={`translate(${padding.left}, ${padding.top})`}>
+              {/* Extremely Subtile Background Zones */}
+              <g opacity="0.4">
+                <ChartZoneBackground zones={zones} scaleX={scaleX} chartHeight={chartHeight} />
               </g>
-            ))}
 
-            {/* Grid lines X - Venit brut */}
-            {[0, 100000, 200000, 300000, 400000, 500000].map((incomeRON) => (
-              <g key={incomeRON}>
-                <line
-                  x1={scaleX(incomeRON)}
-                  y1={0}
-                  x2={scaleX(incomeRON)}
-                  y2={chartHeight}
-                  stroke="var(--color-border)"
-                  strokeWidth="1"
-                  strokeDasharray="4 4"
-                  opacity="0.3"
-                />
-                <text
-                  x={scaleX(incomeRON)}
-                  y={chartHeight + 20}
-                  textAnchor="middle"
-                  fill="var(--color-text-muted)"
-                  fontSize="16"
-                  fontWeight="500"
-                >
-                  {formatCurrency(convertFromRON(incomeRON, chartCurrency), chartCurrency, {
-                    compact: true,
-                  })}
-                </text>
-              </g>
-            ))}
-
-            <path
-              d={areaPath}
-              fill="url(#areaGradient)"
-              clipPath="url(#chartClip)"
-              mask="url(#fadeMask)"
-            />
-
-            <path
-              d={linePath}
-              fill="none"
-              stroke="var(--color-accent-primary)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              clipPath="url(#chartClip)"
-              mask="url(#fadeMask)"
-            />
-
-            {/* Praguri CASS - linii verticale cu hover (deasupra graficului) */}
-            {/* CASS: Prag minim 6 salarii + Plafon maxim 72 salarii - toate verde */}
-            {[
-              {
-                value: thresholds.cass.minThreshold,
-                salaries: customCassMinThreshold,
-                label: t('home.chart.thresholds.cassMin'),
-              },
-              {
-                value: thresholds.cass.maxCap,
-                salaries: customCassMaxCap,
-                label: t('home.chart.thresholds.cassMax'),
-              },
-            ].map((threshold, idx) => {
-              const x = scaleX(threshold.value);
-              return (
-                <g key={`cass-${idx}`}>
+              {/* Grid lines Y */}
+              {Array.from({ length: Math.floor(maxRate / 10) + 1 }, (_, i) => i * 10).map((rate) => (
+                <g key={rate}>
                   <line
-                    x1={x}
-                    y1={0}
-                    x2={x}
-                    y2={chartHeight}
-                    stroke="#10b981"
-                    strokeWidth="2"
-                    strokeDasharray="6 3"
-                    opacity="0.6"
-                  />
-                  <rect
-                    x={x - 10}
-                    y={0}
-                    width={20}
-                    height={chartHeight}
-                    fill="transparent"
-                    style={{ cursor: 'pointer' }}
-                    onMouseEnter={() => {
-                      setHoveredThreshold({
-                        type: 'CASS',
-                        value: threshold.value,
-                        label: `${threshold.label}: ${threshold.salaries} ${t('common.minimumSalaries')}`,
-                        x: padding.left + x,
-                      });
-                    }}
-                    onMouseLeave={() => setHoveredThreshold(null)}
-                  />
-                </g>
-              );
-            })}
-
-            {[
-              {
-                value: thresholds.cas.threshold1,
-                salaries: customCasThreshold1,
-              },
-              {
-                value: thresholds.cas.threshold2,
-                salaries: customCasThreshold2,
-              },
-            ].map((threshold, idx) => {
-              const x = scaleX(threshold.value);
-              return (
-                <g key={`cas-${idx}`}>
-                  <line
-                    x1={x}
-                    y1={0}
-                    x2={x}
-                    y2={chartHeight}
-                    stroke="#f59e0b"
-                    strokeWidth="2"
-                    strokeDasharray="6 3"
-                    opacity="0.6"
-                  />
-                  <rect
-                    x={x - 10}
-                    y={0}
-                    width={20}
-                    height={chartHeight}
-                    fill="transparent"
-                    style={{ cursor: 'pointer' }}
-                    onMouseEnter={() => {
-                      setHoveredThreshold({
-                        type: 'CAS',
-                        value: threshold.value,
-                        label: `${t('home.chart.thresholds.cas')}: ${threshold.salaries} ${t('common.minimumSalaries')}`,
-                        x: padding.left + x,
-                      });
-                    }}
-                    onMouseLeave={() => setHoveredThreshold(null)}
-                  />
-                </g>
-              );
-            })}
-
-            {/* Current point */}
-            {currentInput.grossIncome > 0 && currentInput.grossIncome <= maxIncome && (
-              <>
-                {/* Vertical line to point */}
-                <line
-                  x1={currentX}
-                  y1={chartHeight}
-                  x2={currentX}
-                  y2={currentY}
-                  stroke="var(--color-accent-secondary)"
-                  strokeWidth="2"
-                  strokeDasharray="4 4"
-                />
-                {/* Point */}
-                <circle
-                  cx={currentX}
-                  cy={currentY}
-                  r="6"
-                  fill="var(--color-accent-primary)"
-                  stroke="var(--color-surface)"
-                  strokeWidth="2"
-                />
-                {/* Label */}
-                <g transform={`translate(${currentX}, ${currentY - 25})`}>
-                  <rect
-                    x="-50"
-                    y="-24"
-                    width="100"
-                    height="28"
-                    rx="6"
-                    fill="var(--color-surface)"
-                    stroke="var(--color-accent-primary)"
-                    strokeWidth="2"
+                    x1={0} y1={scaleY(rate)} x2={chartWidth} y2={scaleY(rate)}
+                    stroke="var(--color-border)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"
                   />
                   <text
-                    x="0"
-                    y="-4"
-                    textAnchor="middle"
-                    fill="var(--color-accent-primary)"
-                    fontSize="20"
-                    fontWeight="bold"
+                    x={-10} y={scaleY(rate)} textAnchor="end" dominantBaseline="middle"
+                    fill="var(--color-text-muted)" fontSize="14" fontWeight="500"
                   >
-                    {currentEffectiveRate.toFixed(1)}%
+                    {rate}%
                   </text>
                 </g>
-              </>
-            )}
+              ))}
 
-            {/* Axes */}
-            <line
-              x1={0}
-              y1={chartHeight}
-              x2={chartWidth}
-              y2={chartHeight}
-              stroke="var(--color-text-secondary)"
-              strokeWidth="2"
-            />
-            <line
-              x1={0}
-              y1={0}
-              x2={0}
-              y2={chartHeight}
-              stroke="var(--color-text-secondary)"
-              strokeWidth="2"
-            />
-          </g>
-        </svg>
+              {/* Grid lines X */}
+              {Array.from({ length: 6 }, (_, i) => (i * maxIncome) / 5).map((incomeRON) => (
+                <g key={incomeRON}>
+                  <line
+                    x1={scaleX(incomeRON)} y1={0} x2={scaleX(incomeRON)} y2={chartHeight}
+                    stroke="var(--color-border)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"
+                  />
+                  <text
+                    x={scaleX(incomeRON)} y={chartHeight + 25} textAnchor="middle"
+                    fill="var(--color-text-muted)" fontSize="14" fontWeight="500"
+                  >
+                    {formatCurrency(convertFromRON(incomeRON, chartCurrency), chartCurrency, { compact: true })}
+                  </text>
+                </g>
+              ))}
 
-        {/* Tooltip pentru praguri */}
-        {hoveredThreshold && (
-          <div
-            style={{
-              position: 'absolute',
-              left: `${(hoveredThreshold.x / width) * 100}%`,
-              top: '20px',
-              transform: 'translateX(-50%)',
-              pointerEvents: 'none',
-              zIndex: 10,
-            }}
-          >
+
+
+              {/* PFA Area & Line */}
+              <path d={areaPath} fill="url(#areaGradient)" clipPath="url(#chartClip)" opacity="0.6" />
+              <path
+                d={linePath}
+                fill="none"
+                stroke="var(--color-accent-primary)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                clipPath="url(#chartClip)"
+              />
+
+
+
+              {/* Threshold Lines */}
+              <ChartThresholdLine
+                x={scaleX(thresholds.cass.minThreshold)}
+                chartHeight={chartHeight}
+                color="#10b981"
+                label={t('home.chart.thresholds.cassMin')}
+                value={thresholds.cass.minThreshold}
+                salaries={customCassMinThreshold}
+                type="CASS"
+                onHover={setHoveredThreshold}
+                padding={padding}
+                t={t}
+              />
+              <ChartThresholdLine
+                x={scaleX(thresholds.cass.maxCap)}
+                chartHeight={chartHeight}
+                color="#10b981"
+                label={t('home.chart.thresholds.cassMax')}
+                value={thresholds.cass.maxCap}
+                salaries={customCassMaxCap}
+                type="CASS"
+                onHover={setHoveredThreshold}
+                padding={padding}
+                t={t}
+              />
+              <ChartThresholdLine
+                x={scaleX(thresholds.cas.threshold1)}
+                chartHeight={chartHeight}
+                color="#f59e0b"
+                label={t('home.chart.thresholds.cas')}
+                value={thresholds.cas.threshold1}
+                salaries={customCasThreshold1}
+                type="CAS"
+                onHover={setHoveredThreshold}
+                padding={padding}
+                t={t}
+              />
+              <ChartThresholdLine
+                x={scaleX(thresholds.cas.threshold2)}
+                chartHeight={chartHeight}
+                color="#f59e0b"
+                label={t('home.chart.thresholds.cas')}
+                value={thresholds.cas.threshold2}
+                salaries={customCasThreshold2}
+                type="CAS"
+                onHover={setHoveredThreshold}
+                padding={padding}
+                t={t}
+              />
+
+              {/* Current point */}
+              {currentInput.grossIncome > 0 && currentInput.grossIncome <= maxIncome && (
+                <g className="transition-all duration-300">
+                  <line
+                    x1={currentX} y1={chartHeight} x2={currentX} y2={currentY}
+                    stroke="var(--color-accent-secondary)" strokeWidth="2" strokeDasharray="4 4"
+                  />
+                  <circle
+                    cx={currentX} cy={currentY} r="6"
+                    fill="var(--color-accent-primary)" stroke="var(--color-surface)" strokeWidth="3"
+                    className="animate-pulse-slow"
+                  />
+                  <rect
+                    x={currentX - 45}
+                    y={currentY - 55} // Higher up
+                    width="90"
+                    height="40" // Taller
+                    rx="10"
+                    fill="var(--color-surface)"
+                    stroke="var(--color-border)"
+                    strokeWidth="2"
+                    className="shadow-lg"
+                  />
+                  <text
+                    x={currentX}
+                    y={currentY - 33} // Centered in rect
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-xl"
+                    fill="var(--color-text-primary)"
+                    style={{ fontWeight: 500 }}
+                  >
+                    {(Math.round(currentEffectiveRate * 10) / 10).toFixed(1)}%
+                  </text>
+                </g>
+              )}
+
+              {/* Hovered point indicator */}
+              {hoveredDataPoint && (
+                <circle
+                  cx={hoveredDataPoint.x - padding.left}
+                  cy={hoveredDataPoint.y - padding.top}
+                  r="5"
+                  fill="var(--color-accent-primary)"
+                  opacity="0.5"
+                />
+              )}
+
+              {/* Axes */}
+              <line x1={0} y1={chartHeight} x2={chartWidth} y2={chartHeight} stroke="var(--color-text-secondary)" strokeWidth="2" />
+              <line x1={0} y1={0} x2={0} y2={chartHeight} stroke="var(--color-text-secondary)" strokeWidth="2" />
+            </g>
+          </svg>
+
+          {/* Threshold Tooltip */}
+          {hoveredThreshold && (
             <div
-              className="px-4 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap"
               style={{
-                backgroundColor: 'var(--color-surface)',
-                border: `2px solid ${hoveredThreshold.type === 'CASS' ? '#10b981' : '#f59e0b'}`,
-                color: 'var(--color-text-primary)',
+                position: 'absolute',
+                left: `${(hoveredThreshold.x / width) * 100}%`,
+                top: '10px',
+                transform: 'translateX(-50%)',
+                pointerEvents: 'none',
+                zIndex: 30,
               }}
             >
-              <div className="font-semibold text-base">{hoveredThreshold.label}</div>
-              <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                {formatCurrency(
-                  convertFromRON(hoveredThreshold.value, chartCurrency),
-                  chartCurrency
-                )}
+              <div
+                className="px-4 py-2 rounded-lg shadow-2xl text-sm whitespace-nowrap bg-opacity-90 backdrop-blur-md"
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  border: `2px solid ${hoveredThreshold.type === 'CASS' ? '#10b981' : '#f59e0b'}`,
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                <div className="font-bold text-sm uppercase tracking-wider">{hoveredThreshold.label}</div>
+                <div className="text-base font-mono mt-1">
+                  {formatCurrency(convertFromRON(hoveredThreshold.value, chartCurrency), chartCurrency)}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      {currentInput.grossIncome > 0 && currentInput.grossIncome < thresholds.cass.minThreshold && (
-        <div
-          className="mt-4 p-4 rounded-lg text-sm"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-muted)',
-          }}
-        >
-          <span style={{ color: '#10b981', fontWeight: 'bold' }}>
-            {t('home.chart.note.prefix')}
-          </span>{' '}
-          {t('home.chart.note.text', {
-            amount: formatCurrency(
-              convertFromRON(customCassMinThreshold * customMinWage, chartCurrency),
-              chartCurrency
-            ),
-            cassMin: formatCurrency(
-              convertFromRON(customCassMinThreshold * customMinWage * 0.1, chartCurrency),
-              chartCurrency
-            ),
-          })}
+          {/* Data Point Tooltip */}
+          {hoveredDataPoint && !hoveredThreshold && (
+            <ChartTooltip
+              income={hoveredDataPoint.point.income}
+              effectiveRate={hoveredDataPoint.point.effectiveRate}
+              total={hoveredDataPoint.point.total}
+              formatCurrency={formatCurrency}
+              currency={chartCurrency}
+              x={hoveredDataPoint.cssX}
+              y={hoveredDataPoint.cssY}
+              containerWidth={containerRef.current?.getBoundingClientRect().width || 0}
+            />
+          )}
         </div>
-      )}
-    </div>
+
+        {currentInput.grossIncome > 0 &&
+          currentInput.grossIncome < thresholds.cass.minThreshold &&
+          !currentInput.isEmployee &&
+          !currentInput.isPensioner && (
+            <div
+              className="mt-6 p-4 rounded-xl text-sm bg-opacity-50 backdrop-blur-sm border"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-muted)',
+              }}
+            >
+              <span className="font-bold" style={{ color: '#10b981' }}>{t('home.chart.note.prefix')}</span>{' '}
+              {t('home.chart.note.text', {
+                amount: formatCurrency(convertFromRON(thresholds.cass.minThreshold, chartCurrency), chartCurrency),
+                cassMin: formatCurrency(convertFromRON(thresholds.cass.minThreshold * 0.1, chartCurrency), chartCurrency),
+              })}
+            </div>
+          )}
+      </div>
+    </div >
   );
 };

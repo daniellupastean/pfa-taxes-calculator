@@ -53,7 +53,6 @@ export const CalculatorPage: React.FC = () => {
           <div className="space-y-6">
             <ResultsCard
               breakdown={result.breakdown}
-              grossIncome={result.input.grossIncome}
               cassMinThreshold={config.customCassMinThreshold}
               cassMaxCap={config.customCassMaxCap}
               isEmployee={inputs.isEmployee}

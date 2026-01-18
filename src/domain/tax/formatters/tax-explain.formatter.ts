@@ -2,7 +2,7 @@ import type { TaxRules } from '../../../data/tax-configurations';
 import type { ExplainStep } from '../models';
 import { TaxInput, TaxBreakdown } from '../models';
 import type { ThresholdSelection } from '../policies';
-import { formatLei, formatPercent } from '../../../lib/format';
+import { formatLei, formatPercent } from '@lib/format';
 
 /**
  * Tax Explain Formatter

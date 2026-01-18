@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTaxRulesForYear } from '@/data/tax-configurations';
-import { TaxCalculationService, TaxInput } from '@/domain';
-import type { PlainTaxInput, PlainTaxResult } from '@/domain/tax/models';
-import { CurrencySelectorInline } from '@/shared/components/ui';
+import { getTaxRulesForYear } from '@data/tax-configurations';
+import { TaxCalculationService, TaxInput } from '@domain';
+import type { PlainTaxInput, PlainTaxResult } from '@domain/tax/models';
+import { CurrencySelectorInline } from '@shared/components/ui';
 import {
   useAdvancedConfig,
   useCurrency,
   useSettings,
   type Currency,
-} from '@/shared/contexts';
+} from '@shared/contexts';
 import { useTaxChartData, useTaxChartScale } from '../hooks';
 import type { HoveredDataPoint, HoveredThreshold } from '../types';
 import { ChartAxes } from './ChartAxes';

@@ -2,9 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, Clock, Tag } from 'lucide-react';
-import { TopNavigation, Footer } from '@/shared/components/layout';
-import { IconButton } from '@/shared/components/ui';
-import { blogPosts } from '@/data/blog';
+import { TopNavigation, Footer } from '@shared/components/layout';
+import { IconButton } from '@shared/components/ui';
+import { blogPosts } from '@data/blog';
 
 export const BlogPage: React.FC = () => {
   const navigate = useNavigate();

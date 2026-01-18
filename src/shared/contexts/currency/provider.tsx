@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { usePersistedState, STORAGE_KEYS } from '@/lib';
-import { fetchExchangeRates, shouldUpdateRates } from '@/services/exchange-rates';
+import { usePersistedState, STORAGE_KEYS } from '@lib';
+import { fetchExchangeRates, shouldUpdateRates } from '@services/exchange-rates';
 import type { Currency, CurrencyRates } from './context';
 import { CurrencyContext } from './context';
 

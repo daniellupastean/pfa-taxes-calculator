@@ -1,11 +1,11 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers, Upload, Trash2, Lightbulb } from 'lucide-react';
-import type { PlainTaxResult } from '@/domain/tax/models';
-import type { SavedScenario } from '@/lib/storage';
-import { loadScenarios, addScenario, removeScenario } from '@/lib/storage';
-import { formatPercent } from '@/lib/format';
-import { useCurrency } from '@/shared/contexts';
+import type { PlainTaxResult } from '@domain/tax/models';
+import type { SavedScenario } from '@lib/storage';
+import { loadScenarios, addScenario, removeScenario } from '@lib/storage';
+import { formatPercent } from '@lib/format';
+import { useCurrency } from '@shared/contexts';
 
 interface ScenariosPanelProps {
   currentResult: PlainTaxResult | null;

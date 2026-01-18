@@ -3,10 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Clock, BookOpen, Tag, Calendar, ChevronRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { TopNavigation, Footer } from '@/shared/components/layout';
-import { IconButton } from '@/shared/components/ui';
-import { blogPosts } from '@/data/blog';
-import '@/styles/markdown.css';
+import { TopNavigation, Footer } from '@shared/components/layout';
+import { IconButton } from '@shared/components/ui';
+import { blogPosts } from '@data/blog';
+import '@styles/markdown.css';
 
 export const BlogPostPage: React.FC = () => {
   const navigate = useNavigate();

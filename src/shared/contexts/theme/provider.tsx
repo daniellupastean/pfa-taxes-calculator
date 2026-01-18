@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { usePersistedState, STORAGE_KEYS } from '@/lib';
+import { usePersistedState, STORAGE_KEYS } from '@lib';
 import { ThemeContext, type Theme } from './context';
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

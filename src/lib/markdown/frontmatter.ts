@@ -1,19 +1,5 @@
-export interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  publishedAt: string;
-  readTime: string;
-  category: string;
-  tags: string[];
-  image?: string;
-}
-
-type FrontmatterValue = string | string[];
-type Frontmatter = Record<string, FrontmatterValue>;
+export type FrontmatterValue = string | string[];
+export type Frontmatter = Record<string, FrontmatterValue>;
 
 const parseFrontmatterValue = (value: string): string => {
   const trimmed = value.trim();
@@ -68,10 +54,10 @@ const parseFrontmatterBlock = (block: string): Frontmatter => {
   return metadata;
 };
 
-const parseFrontmatter = (raw: string): { metadata: Frontmatter; content: string } => {
+export const parseFrontmatter = (raw: string): { metadata: Frontmatter; content: string } => {
   const match = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
   if (!match) {
-    throw new Error('Missing frontmatter in blog post.');
+    throw new Error('Missing frontmatter in markdown file.');
   }
 
   const metadata = parseFrontmatterBlock(match[1]);
@@ -80,7 +66,7 @@ const parseFrontmatter = (raw: string): { metadata: Frontmatter; content: string
   return { metadata, content };
 };
 
-const getString = (metadata: Frontmatter, key: string): string => {
+export const getString = (metadata: Frontmatter, key: string): string => {
   const value = metadata[key];
   if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`Missing or invalid frontmatter field: ${key}`);
@@ -88,7 +74,7 @@ const getString = (metadata: Frontmatter, key: string): string => {
   return value;
 };
 
-const getStringArray = (metadata: Frontmatter, key: string): string[] => {
+export const getStringArray = (metadata: Frontmatter, key: string): string[] => {
   const value = metadata[key];
   if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
     throw new Error(`Missing or invalid frontmatter list: ${key}`);
@@ -96,25 +82,7 @@ const getStringArray = (metadata: Frontmatter, key: string): string[] => {
   return value;
 };
 
-const getOptionalString = (metadata: Frontmatter, key: string): string | undefined => {
+export const getOptionalString = (metadata: Frontmatter, key: string): string | undefined => {
   const value = metadata[key];
   return typeof value === 'string' ? value : undefined;
-};
-
-export const parseMarkdownPost = (raw: string): BlogPost => {
-  const { metadata, content } = parseFrontmatter(raw);
-
-  return {
-    id: getString(metadata, 'id'),
-    slug: getString(metadata, 'slug'),
-    title: getString(metadata, 'title'),
-    excerpt: getString(metadata, 'excerpt'),
-    author: getString(metadata, 'author'),
-    publishedAt: getString(metadata, 'publishedAt'),
-    readTime: getString(metadata, 'readTime'),
-    category: getString(metadata, 'category'),
-    tags: getStringArray(metadata, 'tags'),
-    image: getOptionalString(metadata, 'image'),
-    content,
-  };
 };

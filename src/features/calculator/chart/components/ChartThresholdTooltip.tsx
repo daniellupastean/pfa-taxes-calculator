@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TFunction } from 'i18next';
-import type { Currency } from '@/shared/contexts';
+import type { Currency } from '@shared/contexts';
 import type { HoveredThreshold } from '../types';
 
 interface ChartThresholdTooltipProps {

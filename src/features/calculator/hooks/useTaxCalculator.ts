@@ -4,10 +4,10 @@ import {
   useSettings,
   useAdvancedConfig,
   type Currency,
-} from '@/shared/contexts';
-import { TaxCalculationService, TaxInput } from '@/domain';
-import { getTaxRulesForYear } from '@/data/tax-configurations';
-import type { PlainTaxResult } from '@/domain/tax/models';
+} from '@shared/contexts';
+import { TaxCalculationService, TaxInput } from '@domain';
+import { getTaxRulesForYear } from '@data/tax-configurations';
+import type { PlainTaxResult } from '@domain/tax/models';
 
 export function useTaxCalculator() {
   const { selectedYear } = useSettings();

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TaxCalculationService } from './tax-calculation.service';
 import { TaxInput } from '../models';
-import { rules2026 } from '../../../data/tax-configurations/years/2026';
+import { rules2026 } from '@data/tax-configurations';
 
 describe('TaxCalculationService', () => {
   const service = new TaxCalculationService();

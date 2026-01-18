@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { TaxCalculationService, TaxInput } from '@/domain';
-import type { TaxRules } from '@/data/tax-configurations';
-import type { PlainTaxInput } from '@/domain/tax/models';
+import { TaxCalculationService, TaxInput } from '@domain';
+import type { TaxRules } from '@data/tax-configurations';
+import type { PlainTaxInput } from '@domain/tax/models';
 import type { ChartDataPoint } from '../types';
 
 interface UseTaxChartDataParams {

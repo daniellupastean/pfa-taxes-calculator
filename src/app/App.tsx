@@ -1,6 +1,6 @@
+import { BlogPage, BlogPostPage, CalculatorPage, SettingsPage } from '@features';
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { CalculatorPage, SettingsPage, BlogPage, BlogPostPage } from '@/features';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 const AppLayout: React.FC = () => {
   return (

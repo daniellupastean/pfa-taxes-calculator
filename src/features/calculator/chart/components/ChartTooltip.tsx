@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Currency } from '@/shared/contexts';
+import type { Currency } from '@shared/contexts';
 
 interface ChartTooltipProps {
   income: number;

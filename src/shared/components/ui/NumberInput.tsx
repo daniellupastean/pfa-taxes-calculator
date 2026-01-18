@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNumericInput } from '@/lib';
+import { useNumericInput } from '@lib';
 
 interface NumberInputProps {
   label: string;

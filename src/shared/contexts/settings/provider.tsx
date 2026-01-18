@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { SettingsContext } from './context';
-import { usePersistedState, STORAGE_KEYS } from '@/lib';
-import { availableYears, defaultYear, getDefaultAdvancedConfig } from '@/data/tax-configurations';
+import { usePersistedState, STORAGE_KEYS } from '@lib';
+import { availableYears, defaultYear, getDefaultAdvancedConfig } from '@data/tax-configurations';
 
 interface StoredSettings {
   selectedYear: number;

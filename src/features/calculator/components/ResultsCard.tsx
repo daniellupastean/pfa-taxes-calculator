@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PlainTaxBreakdown } from '@/domain/tax/models';
-import { Tooltip, CurrencySelectorInline, ToggleInline } from '@/shared/components/ui';
-import { useCurrency, useSettings } from '@/shared/contexts';
+import type { PlainTaxBreakdown } from '@domain/tax/models';
+import { Tooltip, CurrencySelectorInline, ToggleInline } from '@shared/components/ui';
+import { useCurrency, useSettings } from '@shared/contexts';
 
 interface ResultsCardProps {
   breakdown: PlainTaxBreakdown;

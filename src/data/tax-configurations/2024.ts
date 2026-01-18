@@ -6,7 +6,7 @@ import type { TaxRules } from './types';
 
 export const rules2024: TaxRules = {
   year: 2024,
-  minimumWageMonthly: 3700,
+  minimumWageMonthly: 3300,
 
   rates: {
     incomeTax: 0.1,
@@ -16,7 +16,7 @@ export const rules2024: TaxRules = {
 
   casThresholds: [12, 24],
   cassThresholds: [6],
-  cassMaxCap: 72,
+  cassMaxCap: 24,
 
   rounding: {
     internalDecimals: 2,

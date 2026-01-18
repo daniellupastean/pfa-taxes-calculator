@@ -16,7 +16,7 @@ export const rules2025: TaxRules = {
 
   casThresholds: [12, 24],
   cassThresholds: [6],
-  cassMaxCap: 72,
+  cassMaxCap: 60,
 
   rounding: {
     internalDecimals: 2,

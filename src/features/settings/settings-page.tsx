@@ -140,7 +140,7 @@ export const SettingsPage = () => {
               </button>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-5" key={selectedYear}>
               {/* Minimum wage override */}
               <div className="rounded-lg p-5 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-4">

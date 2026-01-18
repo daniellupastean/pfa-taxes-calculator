@@ -40,43 +40,17 @@ export interface AdvancedConfig {
   customCassMaxCap: number;
 }
 
-const defaultAdvancedConfigByYear: Record<number, AdvancedConfig> = {
-  2024: {
-    customMinWage: 3700,
-    customCasThreshold1: 12,
-    customCasThreshold2: 24,
-    customCassMinThreshold: 6,
-    customCassMaxCap: 72,
-  },
-  2025: {
-    customMinWage: 4050,
-    customCasThreshold1: 12,
-    customCasThreshold2: 24,
-    customCassMinThreshold: 6,
-    customCassMaxCap: 72,
-  },
-  2026: {
-    customMinWage: 4050,
-    customCasThreshold1: 12,
-    customCasThreshold2: 24,
-    customCassMinThreshold: 6,
-    customCassMaxCap: 72,
-  },
-  2027: {
-    customMinWage: 4325,
-    customCasThreshold1: 12,
-    customCasThreshold2: 24,
-    customCassMinThreshold: 6,
-    customCassMaxCap: 72,
-  },
-};
-
 export function getDefaultAdvancedConfig(year: number): AdvancedConfig {
-  const config = defaultAdvancedConfigByYear[year];
-  if (!config) {
-    throw new Error(
-      `No default advanced config available for year ${year}. Available years: ${Object.keys(defaultAdvancedConfigByYear).join(', ')}`
-    );
+  const rules = getTaxRulesForYear(year);
+  if (rules.casThresholds.length < 2 || rules.cassThresholds.length < 1) {
+    throw new Error(`Missing thresholds in tax rules for year ${year}.`);
   }
-  return config;
+
+  return {
+    customMinWage: rules.minimumWageMonthly,
+    customCasThreshold1: rules.casThresholds[0],
+    customCasThreshold2: rules.casThresholds[1],
+    customCassMinThreshold: rules.cassThresholds[0],
+    customCassMaxCap: rules.cassMaxCap,
+  };
 }

@@ -11,7 +11,7 @@ import type { PlainTaxResult } from '@/domain/tax/models';
 
 export function useTaxCalculator() {
   const { selectedYear } = useSettings();
-  const { inputCurrency, convertToRON, convertBetweenCurrencies } = useCurrency();
+  const { inputCurrency, convertToRON, convertFromRON, convertBetweenCurrencies } = useCurrency();
   const {
     customMinWage,
     setCustomMinWage,
@@ -106,8 +106,22 @@ export function useTaxCalculator() {
   ]);
 
   const handleLoadScenario = (result: PlainTaxResult) => {
-    setGrossIncome(result.input.grossIncome);
-    setDeductibleExpenses(result.input.deductibleExpenses);
+    // Saved scenarios store values in RON - convert to current input currency
+    const grossIncomeConverted =
+      inputCurrency === 'RON'
+        ? result.input.grossIncome
+        : Math.round(convertFromRON(result.input.grossIncome, inputCurrency));
+    const deductibleExpensesConverted =
+      inputCurrency === 'RON'
+        ? result.input.deductibleExpenses
+        : Math.round(convertFromRON(result.input.deductibleExpenses, inputCurrency));
+
+    setGrossIncome(grossIncomeConverted);
+    setDeductibleExpenses(deductibleExpensesConverted);
+
+    // Load employee/pensioner status
+    setIsEmployee(result.input.isEmployee);
+    setIsPensioner(result.input.isPensioner);
 
     if (result.input.configOverrides) {
       if (result.input.configOverrides.minimumWageMonthly) {

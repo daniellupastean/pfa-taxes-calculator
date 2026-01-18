@@ -128,16 +128,16 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
   const chartHeight = height - padding.top - padding.bottom;
 
   const maxRate = useMemo(() => {
-    let max = 60; // Default visualization limit
+    let max = 60; // Default chart ceiling for the rate (%).
     const shouldScaleFromCurrent = currentInput.grossIncome >= minIncomeForScale;
 
-    // Only scale up if the CURRENT rate is higher than default and in a stable range.
-    // We intentionally ignore spikes at very low income to keep the chart readable.
+    // Only scale up when the current rate exceeds the default in a stable range.
+    // Ignore spikes at very low income to keep the chart readable.
     if (shouldScaleFromCurrent && currentEffectiveRate > max) {
       max = currentEffectiveRate;
     }
 
-    // Never scale beyond 150%
+    // Cap at 150% to avoid runaway scaling.
     max = Math.min(max, 150);
 
     return Math.ceil(max / 10) * 10;
@@ -196,7 +196,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     const pointX = scaleX(closestPoint.income);
     const pointY = scaleY(closestPoint.effectiveRate);
 
-    // Euclidean distance check to ensure we are close to the line (e.g. within 20px)
+    // Only show hover when the pointer is within ~15px of the line.
     const dist = Math.sqrt(Math.pow(chartX - pointX, 2) + Math.pow(chartY - pointY, 2));
 
     if (dist > 15) {
@@ -204,17 +204,17 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
       return;
     }
 
-    // Get CSS coordinates for tooltip
+    // Compute CSS coordinates for the tooltip.
     const rect = containerRef.current.getBoundingClientRect();
     const cssX = e.clientX - rect.left;
     const cssY = e.clientY - rect.top;
 
     setHoveredDataPoint({
       point: closestPoint,
-      x: pointX + padding.left, // SVG x for circle
-      y: pointY + padding.top, // SVG y for circle
-      cssX, // CSS x for tooltip
-      cssY, // CSS y for tooltip
+      x: pointX + padding.left, // SVG x for the marker
+      y: pointY + padding.top, // SVG y for the marker
+      cssX, // CSS x for the tooltip
+      cssY, // CSS y for the tooltip
     });
   };
 
@@ -267,7 +267,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
         border: '1px solid var(--color-border)',
       }}
     >
-      {/* Standard Header: Consistent with TaxForm */}
+      {/* Header layout matches TaxForm */}
       <div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold gradient-text">{t('home.chart.title')}</h2>
 
@@ -307,12 +307,12 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
             </defs>
 
             <g transform={`translate(${padding.left}, ${padding.top})`}>
-              {/* Extremely Subtile Background Zones */}
+              {/* Subtle background zones */}
               <g opacity="0.4">
                 <ChartZoneBackground zones={zones} scaleX={scaleX} chartHeight={chartHeight} />
               </g>
 
-              {/* Grid lines Y */}
+              {/* Y-axis grid + labels */}
               {Array.from({ length: Math.floor(maxRate / 10) + 1 }, (_, i) => i * 10).map(
                 (rate) => (
                   <g key={rate}>
@@ -341,7 +341,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 )
               )}
 
-              {/* Grid lines X */}
+              {/* X-axis grid + labels */}
               {Array.from({ length: 6 }, (_, i) => (i * maxIncome) / 5).map((incomeRON) => (
                 <g key={incomeRON}>
                   <line
@@ -369,7 +369,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 </g>
               ))}
 
-              {/* PFA Area & Line */}
+              {/* Effective-rate area + line */}
               <path
                 d={areaPath}
                 fill="url(#areaGradient)"
@@ -385,7 +385,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 strokeLinejoin="round"
                 clipPath="url(#chartClip)"
               />
-              {/* Interactive area for tooltip with pointer cursor */}
+              {/* Wide invisible stroke for hover detection */}
               <path
                 d={linePath}
                 fill="none"
@@ -396,7 +396,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 pointerEvents="stroke"
               />
 
-              {/* Threshold Lines */}
+              {/* Threshold markers */}
               <ChartThresholdLine
                 x={scaleX(thresholds.cass.minThreshold)}
                 chartHeight={chartHeight}
@@ -442,10 +442,8 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 padding={padding}
               />
 
-              {/* Axes */}
               <ChartAxes chartWidth={chartWidth} chartHeight={chartHeight} />
 
-              {/* Current point */}
               <ChartCurrentPoint
                 currentX={currentX}
                 currentY={currentY}
@@ -455,20 +453,18 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 grossIncome={currentInput.grossIncome}
               />
 
-              {/* Hovered point indicator */}
               {hoveredDataPoint && (
                 <circle
                   cx={hoveredDataPoint.x - padding.left}
                   cy={hoveredDataPoint.y - padding.top}
                   r="5"
                   fill="var(--color-accent-primary)"
-                opacity="0.5"
-              />
+                  opacity="0.5"
+                />
               )}
             </g>
           </svg>
 
-          {/* Threshold Tooltip */}
           {hoveredThreshold && (
             <ChartThresholdTooltip
               hoveredThreshold={hoveredThreshold}
@@ -481,7 +477,6 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
             />
           )}
 
-          {/* Data Point Tooltip */}
           {hoveredDataPoint && !hoveredThreshold && (
             <ChartTooltip
               income={hoveredDataPoint.point.income}

@@ -18,7 +18,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
     <header className="border-glow bg-surface border-b border-border">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between flex-wrap gap-4 min-h-[60px]">
-          {/* Left side - Back button (if any) + Title */}
+          {/* Left cluster: action and title */}
           <div className="flex items-center gap-4">
             {leftAction}
             <div className="flex flex-col justify-center">
@@ -31,7 +31,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
             </div>
           </div>
 
-          {/* Right side - Language selector + Theme toggle + Custom actions */}
+          {/* Right cluster: language/theme and extra actions */}
           <div className="flex items-center gap-3">
             <LanguageSelector />
             <ThemeToggle />

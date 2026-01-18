@@ -41,7 +41,6 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, content, children }) => 
             }}
           >
             {content || text}
-            {/* Arrow */}
             <div
               className="absolute w-3 h-3 -left-1.5 top-4 transform rotate-45"
               style={{

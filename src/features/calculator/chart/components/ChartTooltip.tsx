@@ -25,19 +25,19 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Smart positioning to keep tooltip within bounds
+  // Keep the tooltip within the chart bounds.
   let translateX = '-50%';
   let left = `${x}px`;
 
-  // If close to left edge (e.g. < 120px), anchor left
+  // Anchor to the left when near the left edge.
   if (x < 120) {
     translateX = '0%';
-    left = `${x + 10}px`; // Add small offset
+    left = `${x + 10}px`; // Nudge away from the cursor.
   }
-  // If close to right edge, anchor right
+  // Anchor to the right when near the right edge.
   else if (containerWidth && x > containerWidth - 120) {
     translateX = '-100%';
-    left = `${x - 10}px`; // Add small offset
+    left = `${x - 10}px`; // Nudge away from the cursor.
   }
 
   return (
@@ -45,7 +45,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
       style={{
         position: 'absolute',
         left,
-        top: `${y - 15}px`, // Move slightly up
+        top: `${y - 15}px`, // Lift above the cursor.
         transform: `translate(${translateX}, -100%)`,
         pointerEvents: 'none',
         zIndex: 40,
@@ -61,7 +61,6 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
         }}
       >
         <div className="space-y-1">
-          {/* Income Row */}
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs uppercase tracking-wide font-semibold opacity-75">
               {t('home.chart.tooltip.income')}
@@ -71,7 +70,6 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
             </span>
           </div>
 
-          {/* Rate Row */}
           <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-1 mt-1">
             <span className="text-xs uppercase tracking-wide font-semibold opacity-75">
               {t('home.chart.tooltip.rate')}

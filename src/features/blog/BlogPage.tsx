@@ -29,7 +29,7 @@ export const BlogPage: React.FC = () => {
 
       <main className="container mx-auto px-4 py-8 flex-1">
         <div className="max-w-4xl mx-auto">
-          {/* Blog Posts Grid */}
+          {/* Post list */}
           <div className="grid gap-6">
             {blogPosts.map((post) => (
               <article
@@ -49,7 +49,6 @@ export const BlogPage: React.FC = () => {
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                {/* Category Badge */}
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="px-3 py-1 rounded-full text-xs font-medium"
@@ -62,17 +61,14 @@ export const BlogPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Title */}
                 <h2 className="text-2xl font-bold mb-3 gradient-text" style={{ cursor: 'pointer' }}>
                   {post.title}
                 </h2>
 
-                {/* Excerpt */}
                 <p className="text-base mb-4" style={{ color: 'var(--color-text-secondary)' }}>
                   {post.excerpt}
                 </p>
 
-                {/* Meta Info */}
                 <div
                   className="flex items-center gap-4 text-sm"
                   style={{ color: 'var(--color-text-muted)' }}
@@ -94,7 +90,7 @@ export const BlogPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Empty State */}
+          {/* Empty state when there are no posts */}
           {blogPosts.length === 0 && (
             <div
               className="rounded-xl p-12 text-center"

@@ -4,7 +4,8 @@ import { Layers, Upload, Trash2, Lightbulb } from 'lucide-react';
 import type { PlainTaxResult } from '@/domain/tax/models';
 import type { SavedScenario } from '@/lib/storage';
 import { loadScenarios, addScenario, removeScenario } from '@/lib/storage';
-import { formatLeiRounded, formatPercent } from '@/lib/format';
+import { formatPercent } from '@/lib/format';
+import { useCurrency } from '@/shared/contexts';
 
 interface ScenariosPanelProps {
   currentResult: PlainTaxResult | null;
@@ -41,11 +42,18 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
   onLoadScenario,
 }) => {
   const { t } = useTranslation();
+  const { inputCurrency, convertFromRON, formatCurrency } = useCurrency();
   const [state, dispatch] = useReducer(scenarioReducer, {
     scenarios: [],
   });
 
   const [scenarioName, setScenarioName] = useState('');
+
+  // Helper to format scenario amounts in current input currency
+  const formatScenarioAmount = (amountInRON: number) => {
+    const converted = inputCurrency === 'RON' ? amountInRON : convertFromRON(amountInRON, inputCurrency);
+    return formatCurrency(converted, inputCurrency);
+  };
 
   useEffect(() => {
     const loaded = loadScenarios();
@@ -67,7 +75,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
 
   return (
     <div className="rounded-xl p-6 border-glow card-hover animate-fade-up bg-panel border border-border">
-      {/* Header cu descriere */}
+      {/* Panel header and description */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-3">
           <Layers size={24} className="text-accent-primary" />
@@ -78,7 +86,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
         </p>
       </div>
 
-      {/* Salvare scenariu curent */}
+      {/* Save the current scenario */}
       <div className="mb-6">
         <label className="block text-sm font-medium mb-2 text-text-secondary">
           {t('home.scenarios.saveLabel')}
@@ -104,7 +112,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
         </p>
       </div>
 
-      {/* Empty state */}
+      {/* Empty state when no scenarios are saved */}
       {state.scenarios.length === 0 && (
         <div className="rounded-lg p-8 text-center bg-surface border border-dashed border-border">
           <Lightbulb size={48} className="text-accent-primary mx-auto mb-4" />
@@ -117,7 +125,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
         </div>
       )}
 
-      {/* Tabel scenarii */}
+      {/* Saved scenarios table */}
       {state.scenarios.length > 0 && (
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="min-w-full">
@@ -155,13 +163,13 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-mono text-text-secondary">
-                      {formatLeiRounded(scenario.result.input.grossIncome)}
+                      {formatScenarioAmount(scenario.result.input.grossIncome)}
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-success">
-                      {formatLeiRounded(scenario.result.breakdown.netIncome)}
+                      {formatScenarioAmount(scenario.result.breakdown.netIncome)}
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-danger">
-                      {formatLeiRounded(scenario.result.breakdown.total)}
+                      {formatScenarioAmount(scenario.result.breakdown.total)}
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-accent-electric">
                       {scenario.result.breakdown.effectiveRate !== null

@@ -77,7 +77,6 @@ export const Select = <T extends string | number>({
       )}
 
       <div className="relative">
-        {/* Select Button */}
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -124,7 +123,6 @@ export const Select = <T extends string | number>({
           />
         </button>
 
-        {/* Dropdown Menu */}
         {isOpen && (
           <div
             className="absolute z-50 w-full mt-2 rounded-lg overflow-hidden"

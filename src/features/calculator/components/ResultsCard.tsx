@@ -77,7 +77,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
       </div>
 
       <div className="space-y-4">
-        {/* Net Income */}
         <div className="flex justify-between items-center">
           <Tooltip text={t('home.results.netIncome.tooltip')}>
             <span className="text-sm font-medium text-text-secondary">
@@ -89,7 +88,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           </span>
         </div>
 
-        {/* CAS */}
         <div className="flex justify-between items-center">
           <Tooltip text={t('home.results.cas.tooltip')}>
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
@@ -104,7 +102,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           <span className="font-mono font-medium text-danger">{format(breakdown.cas)}</span>
         </div>
 
-        {/* CASS */}
         <div className="flex justify-between items-center">
           <Tooltip content={cassTooltipContent}>
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
@@ -124,7 +121,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           </span>
         </div>
 
-        {/* Taxable Income */}
         <div className="flex justify-between items-center pb-3 mt-2 border-b border-border">
           <Tooltip text={t('home.results.taxableIncome.tooltip')}>
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
@@ -136,7 +132,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           </span>
         </div>
 
-        {/* Income Tax */}
         <div className="flex justify-between items-center pb-4 border-b border-border">
           <Tooltip text={t('home.results.incomeTax.tooltip')}>
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
@@ -148,7 +143,6 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
           </span>
         </div>
 
-        {/* Total Taxes */}
         <div className="flex justify-between items-center pt-3">
           <Tooltip text={t('home.results.totalTaxes.tooltip')}>
             <span className="text-base font-semibold text-text-primary">

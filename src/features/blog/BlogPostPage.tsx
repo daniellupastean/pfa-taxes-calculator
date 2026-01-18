@@ -65,7 +65,7 @@ export const BlogPostPage: React.FC = () => {
 
       <main className="container mx-auto px-4 py-8 flex-1">
         <article className="max-w-3xl mx-auto">
-          {/* Breadcrumbs */}
+          {/* Breadcrumb trail */}
           <nav
             className="mb-6 flex items-center gap-2 text-sm"
             style={{ color: 'var(--color-text-muted)' }}
@@ -89,7 +89,7 @@ export const BlogPostPage: React.FC = () => {
             <span style={{ color: 'var(--color-text-secondary)' }}>{post.title}</span>
           </nav>
 
-          {/* Article Card */}
+          {/* Post container */}
           <div
             className="rounded-xl p-6 md:p-8 border-glow"
             style={{
@@ -97,9 +97,8 @@ export const BlogPostPage: React.FC = () => {
               border: '1px solid var(--color-border)',
             }}
           >
-            {/* Header */}
+            {/* Post header: category, title, and metadata */}
             <div className="mb-8">
-              {/* Category Badge */}
               <div
                 className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-4"
                 style={{
@@ -110,10 +109,8 @@ export const BlogPostPage: React.FC = () => {
                 {post.category}
               </div>
 
-              {/* Title */}
               <h1 className="text-4xl font-bold mb-4 gradient-text">{post.title}</h1>
 
-              {/* Meta Info */}
               <div
                 className="flex flex-wrap items-center gap-4 text-sm pb-6 border-b"
                 style={{
@@ -136,12 +133,12 @@ export const BlogPostPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Content */}
+            {/* Markdown body */}
             <div className="markdown-content">
               <ReactMarkdown>{post.content.replace(/^\s*#\s+.+?\n+/, '')}</ReactMarkdown>
             </div>
 
-            {/* Tags */}
+            {/* Tag list */}
             <div className="mt-8 pt-6 border-t" style={{ borderColor: 'var(--color-border)' }}>
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag size={16} style={{ color: 'var(--color-text-muted)' }} />
@@ -162,7 +159,7 @@ export const BlogPostPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Related Articles */}
+          {/* Related posts in the same category */}
           {relatedPosts.length > 0 && (
             <div className="mt-12">
               <h2
@@ -233,7 +230,7 @@ export const BlogPostPage: React.FC = () => {
             </div>
           )}
 
-          {/* Back to Blog CTA */}
+          {/* Back to blog action */}
           <div className="mt-12 text-center">
             <button
               onClick={() => navigate('/blog')}

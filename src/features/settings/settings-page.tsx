@@ -35,10 +35,9 @@ export const SettingsPage = () => {
         leftAction={<IconButton icon={<ArrowLeft />} onClick={() => navigate('/')} size={24} />}
       />
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-6">
-          {/* An fiscal */}
+          {/* Fiscal year selection */}
           <div className="rounded-xl p-6 border-glow bg-panel border border-border">
             <h2 className="text-xl font-bold mb-4 gradient-text">
               {t('settings.fiscalYear.title')}
@@ -54,7 +53,7 @@ export const SettingsPage = () => {
             />
           </div>
 
-          {/* Rate de schimb */}
+          {/* Exchange rates snapshot */}
           <div className="rounded-xl p-6 border-glow bg-panel border border-border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold gradient-text">
@@ -73,7 +72,6 @@ export const SettingsPage = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {/* EUR Rate - Read only */}
               <div className="rounded-lg p-4 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp size={16} className="text-accent-primary" />
@@ -87,7 +85,6 @@ export const SettingsPage = () => {
                 </div>
               </div>
 
-              {/* USD Rate - Read only */}
               <div className="rounded-lg p-4 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp size={16} className="text-accent-primary" />
@@ -102,7 +99,7 @@ export const SettingsPage = () => {
               </div>
             </div>
 
-            {/* Footer cu sursa datelor */}
+            {/* Exchange rate sources */}
             <div className="mt-4 pt-4 border-t border-border">
               <p className="text-xs text-center text-text-muted">
                 {t('settings.exchangeRates.source')}:{' '}
@@ -129,7 +126,7 @@ export const SettingsPage = () => {
             </div>
           </div>
 
-          {/* Advanced configuration */}
+          {/* Advanced overrides */}
           <div className="rounded-xl p-6 border-glow bg-panel border border-border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold gradient-text">{t('settings.advanced.title')}</h2>
@@ -144,7 +141,7 @@ export const SettingsPage = () => {
             </div>
 
             <div className="space-y-5">
-              {/* Salariu minim - Card separat */}
+              {/* Minimum wage override */}
               <div className="rounded-lg p-5 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1 h-6 rounded-full bg-accent-primary" />
@@ -169,7 +166,7 @@ export const SettingsPage = () => {
                 />
               </div>
 
-              {/* CAS - Card separat */}
+              {/* CAS thresholds override */}
               <div className="rounded-lg p-5 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1 h-6 rounded-full bg-accent-secondary" />
@@ -204,7 +201,7 @@ export const SettingsPage = () => {
                 </div>
               </div>
 
-              {/* CASS - Card separat */}
+              {/* CASS thresholds override */}
               <div className="rounded-lg p-5 bg-surface border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1 h-6 rounded-full bg-emerald-500" />
@@ -216,7 +213,7 @@ export const SettingsPage = () => {
                   {t('settings.advanced.cass.description')}
                 </p>
 
-                {/* Prag minim CASS */}
+                {/* Minimum CASS threshold */}
                 <div className="mb-5">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-sm font-medium text-text-secondary">
@@ -234,7 +231,7 @@ export const SettingsPage = () => {
                   />
                 </div>
 
-                {/* Plafon maxim */}
+                {/* Maximum CASS cap */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-sm font-medium text-text-secondary">

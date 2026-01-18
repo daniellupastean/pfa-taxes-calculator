@@ -15,7 +15,7 @@ const AppLayout: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/pfa-taxes-calculator">
       <AppLayout />
     </BrowserRouter>
   );

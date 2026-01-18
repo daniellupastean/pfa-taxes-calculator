@@ -2,11 +2,9 @@
  * Tax rules for Romanian PFA 2026 (real taxation system)
  *
  * Note: Minimum wage increases to 4325 RON from July 1, 2026.
- * For simplicity, we use the initial value of 4050 RON (January-June).
- * For calculations after July 2026, use the 2027 configuration.
  */
 
-import type { TaxRules } from './types';
+import type { TaxRules } from '../types';
 
 export const rules2026: TaxRules = {
   year: 2026,

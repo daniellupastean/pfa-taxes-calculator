@@ -5,7 +5,7 @@ import { ArrowLeft, Clock, BookOpen, Tag, Calendar, ChevronRight } from 'lucide-
 import ReactMarkdown from 'react-markdown';
 import { TopNavigation, Footer } from '@/shared/components/layout';
 import { IconButton } from '@/shared/components/ui';
-import { blogPosts } from '@/data/blog-posts';
+import { blogPosts } from '@/data/blog';
 import '@/styles/markdown.css';
 
 export const BlogPostPage: React.FC = () => {

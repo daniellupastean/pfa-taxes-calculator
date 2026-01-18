@@ -1,12 +1,8 @@
-/**
- * Index for all Romanian PFA tax rules
- */
-
-import { rules2024 } from './2024';
-import { rules2025 } from './2025';
-import { rules2026 } from './2026';
-import { rules2027 } from './2027';
 import type { TaxRules } from './types';
+import { rules2024 } from './years/2024';
+import { rules2025 } from './years/2025';
+import { rules2026 } from './years/2026';
+import { rules2027 } from './years/2027';
 
 export type { TaxRules };
 

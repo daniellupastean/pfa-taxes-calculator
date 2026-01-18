@@ -1,7 +1,3 @@
-/**
- * Types for Romanian PFA tax rules
- */
-
 export interface TaxRules {
   year: number;
   minimumWageMonthly: number;
@@ -12,7 +8,7 @@ export interface TaxRules {
   };
   /** CAS thresholds in minimum wages (e.g., [12, 24]) */
   casThresholds: number[];
-  /** CASS minimum threshold in minimum wages (e.g., [6]) - only the exemption threshold */
+  /** CASS minimum threshold in minimum wages (e.g., [6]) */
   cassThresholds: number[];
   /** CASS maximum cap in minimum wages (e.g., 72) */
   cassMaxCap: number;

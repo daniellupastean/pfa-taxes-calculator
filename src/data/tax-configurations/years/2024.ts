@@ -2,7 +2,7 @@
  * Tax rules for Romanian PFA 2024 (real taxation system)
  */
 
-import type { TaxRules } from './types';
+import type { TaxRules } from '../types';
 
 export const rules2024: TaxRules = {
   year: 2024,

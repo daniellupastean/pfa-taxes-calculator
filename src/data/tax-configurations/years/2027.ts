@@ -5,7 +5,7 @@
  * For 2027, we use the value of 4325 RON.
  */
 
-import type { TaxRules } from './types';
+import type { TaxRules } from '../types';
 
 export const rules2027: TaxRules = {
   year: 2027,

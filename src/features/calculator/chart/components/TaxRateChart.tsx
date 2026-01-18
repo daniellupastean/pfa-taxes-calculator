@@ -52,18 +52,9 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     }),
     [currentRules]
   );
-  const baseMaxIncome = useMemo(() => {
-    const allThresholds = [
-      thresholds.cass.minThreshold,
-      thresholds.cass.maxCap,
-      thresholds.cas.threshold1,
-      thresholds.cas.threshold2,
-    ];
-    return Math.max(...allThresholds) * 2;
-  }, [thresholds]);
   const { maxIncome } = useTaxChartScale({
     currentIncome: currentInput.grossIncome,
-    defaultMaxIncome: baseMaxIncome,
+    defaultMaxIncome: 500000,
   });
   const chartData = useTaxChartData({
     currentInput,
@@ -127,6 +118,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     currentInput.grossIncome > 0
       ? (currentResult.breakdown.total / currentInput.grossIncome) * 100
       : 0;
+  const minIncomeForScale = Math.max(customMinWage * customCassMinThreshold, 1);
 
   const width = 900;
   const height = 600;
@@ -137,11 +129,11 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
 
   const maxRate = useMemo(() => {
     let max = 60; // Default visualization limit
+    const shouldScaleFromCurrent = currentInput.grossIncome >= minIncomeForScale;
 
-    // Only scale up if the CURRENT rate is higher than default.
-    // We intentionally ignore spikes in chartData (e.g. at low income)
-    // to keep the chart readable for the relevant range.
-    if (currentEffectiveRate > max) {
+    // Only scale up if the CURRENT rate is higher than default and in a stable range.
+    // We intentionally ignore spikes at very low income to keep the chart readable.
+    if (shouldScaleFromCurrent && currentEffectiveRate > max) {
       max = currentEffectiveRate;
     }
 
@@ -149,7 +141,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     max = Math.min(max, 150);
 
     return Math.ceil(max / 10) * 10;
-  }, [currentEffectiveRate]);
+  }, [currentEffectiveRate, currentInput.grossIncome, minIncomeForScale]);
 
   const scaleX = useCallback(
     (incomeRON: number) => (incomeRON / maxIncome) * chartWidth,
@@ -166,7 +158,14 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     )
     .join(' ');
 
-  const areaPath = `${linePath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
+  const fillLinePath = chartData
+    .map((point, i) => {
+      const clampedRate = Math.min(point.effectiveRate, maxRate);
+      return `${i === 0 ? 'M' : 'L'} ${scaleX(point.income)} ${scaleY(clampedRate)}`;
+    })
+    .join(' ');
+
+  const areaPath = `${fillLinePath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
 
   const currentX = scaleX(currentInput.grossIncome);
   const currentY = scaleY(currentEffectiveRate);
@@ -289,9 +288,17 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
             onMouseLeave={() => setHoveredDataPoint(null)}
           >
             <defs>
-              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="var(--color-accent-primary)" stopOpacity="0.6" />
-                <stop offset="40%" stopColor="var(--color-accent-primary)" stopOpacity="0.2" />
+              <linearGradient
+                id="areaGradient"
+                gradientUnits="userSpaceOnUse"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2={chartHeight}
+              >
+                <stop offset="0%" stopColor="var(--color-accent-primary)" stopOpacity="0.9" />
+                <stop offset="30%" stopColor="var(--color-accent-primary)" stopOpacity="0.5" />
+                <stop offset="70%" stopColor="var(--color-accent-primary)" stopOpacity="0.15" />
                 <stop offset="100%" stopColor="var(--color-accent-primary)" stopOpacity="0" />
               </linearGradient>
               <clipPath id="chartClip">
@@ -435,6 +442,9 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 padding={padding}
               />
 
+              {/* Axes */}
+              <ChartAxes chartWidth={chartWidth} chartHeight={chartHeight} />
+
               {/* Current point */}
               <ChartCurrentPoint
                 currentX={currentX}
@@ -452,12 +462,9 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                   cy={hoveredDataPoint.y - padding.top}
                   r="5"
                   fill="var(--color-accent-primary)"
-                  opacity="0.5"
-                />
+                opacity="0.5"
+              />
               )}
-
-              {/* Axes */}
-              <ChartAxes chartWidth={chartWidth} chartHeight={chartHeight} />
             </g>
           </svg>
 

@@ -28,7 +28,7 @@ export const ChartCurrentPoint: React.FC<ChartCurrentPointProps> = ({
         y1={chartHeight}
         x2={currentX}
         y2={currentY}
-        stroke="var(--color-accent-secondary)"
+        stroke="var(--color-chart-current-line)"
         strokeWidth="2"
         strokeDasharray="4 4"
       />
@@ -36,7 +36,7 @@ export const ChartCurrentPoint: React.FC<ChartCurrentPointProps> = ({
         cx={currentX}
         cy={currentY}
         r="6"
-        fill="var(--color-accent-primary)"
+        fill="var(--color-chart-current-line)"
         stroke="var(--color-surface)"
         strokeWidth="3"
         className="animate-pulse-slow"

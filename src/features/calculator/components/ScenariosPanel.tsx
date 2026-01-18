@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Layers, Upload, Trash2, Lightbulb, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Layers, Upload, Trash2, Lightbulb } from 'lucide-react';
 import type { PlainTaxResult } from '@/domain/tax/models';
 import type { SavedScenario } from '@/lib/storage';
 import { loadScenarios, addScenario, removeScenario } from '@/lib/storage';
@@ -144,14 +144,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
               </tr>
             </thead>
             <tbody className="bg-panel">
-              {state.scenarios.map((scenario, index) => {
-                const currentTotal = currentResult?.breakdown.total ?? 0;
-                const scenarioTotal = scenario.result.breakdown.total;
-                const diff = scenarioTotal - currentTotal;
-                const diffPercent =
-                  currentTotal > 0 ? ((diff / currentTotal) * 100).toFixed(1) : null;
-
-                return (
+              {state.scenarios.map((scenario, index) => (
                   <tr
                     key={scenario.id}
                     className={`transition-colors hover:bg-accent-primary/5 ${index > 0 ? 'border-t border-border' : ''}`}
@@ -159,24 +152,6 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                     <td className="px-4 py-3 text-sm font-medium text-text-primary">
                       <div className="flex items-center gap-2">
                         {scenario.name}
-                        {currentResult && diff !== 0 && diffPercent && (
-                          <div
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${
-                              diff > 0
-                                ? 'bg-danger/10 text-danger border border-danger/30'
-                                : 'bg-success/10 text-success border border-success/30'
-                            }`}
-                          >
-                            {diff > 0 ? (
-                              <TrendingUp size={10} />
-                            ) : diff < 0 ? (
-                              <TrendingDown size={10} />
-                            ) : (
-                              <Minus size={10} />
-                            )}
-                            {diffPercent}%
-                          </div>
-                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-right font-mono text-text-secondary">
@@ -212,8 +187,7 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                       </div>
                     </td>
                   </tr>
-                );
-              })}
+              ))}
             </tbody>
           </table>
         </div>

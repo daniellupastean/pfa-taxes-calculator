@@ -89,8 +89,8 @@
         "tooltip": "Total amount paid to the state"
       },
       "netAfterTaxes": {
-        "label": "Take Home",
-        "tooltip": "Net income after all taxes and contributions",
+        "label": "Available Income",
+        "tooltip": "Available income after all taxes and contributions",
         "monthlyDescription": "Available income / 12 months",
         "annualDescription": "Gross income - Total taxes"
       },

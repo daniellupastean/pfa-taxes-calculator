@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PlainTaxBreakdown } from '../../../domain/tax/models';
-import { Tooltip, CurrencySelectorInline, ToggleInline } from '../../../shared/components/ui';
-import { useCurrency, useSettings } from '../../../shared/contexts';
+import type { PlainTaxBreakdown } from '@/domain/tax/models';
+import { Tooltip, CurrencySelectorInline, ToggleInline } from '@/shared/components/ui';
+import { useCurrency, useSettings } from '@/shared/contexts';
 
 interface ResultsCardProps {
   breakdown: PlainTaxBreakdown;
@@ -101,9 +101,7 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
               )}
             </span>
           </Tooltip>
-          <span className="font-mono font-medium text-danger">
-            {format(breakdown.cas)}
-          </span>
+          <span className="font-mono font-medium text-danger">{format(breakdown.cas)}</span>
         </div>
 
         {/* CASS */}
@@ -157,15 +155,13 @@ export const ResultsCard: React.FC<ResultsCardProps> = ({
               {t('home.results.totalTaxes.label')}
             </span>
           </Tooltip>
-          <span className="text-xl font-bold font-mono text-danger">
-            {format(breakdown.total)}
-          </span>
+          <span className="text-xl font-bold font-mono text-danger">{format(breakdown.total)}</span>
         </div>
 
-        <div className="pt-4 mt-4 border-t-2 border-border" />
+        <div className="pt-2 mt-2 border-t-2 border-border" />
 
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-3">
+        <div className="pt-1">
+          <div className="flex items-center justify-between mb-2">
             <Tooltip text={t('home.results.netAfterTaxes.tooltip')}>
               <span className="text-base font-semibold text-text-primary">
                 {t('home.results.netAfterTaxes.label')}

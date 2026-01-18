@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useNumericInput } from '@/lib';
 
 interface NumberInputProps {
   label: string;
@@ -17,49 +18,12 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   suffix,
   placeholder = '0',
 }) => {
-  const [inputValue, setInputValue] = useState(
-    value === null || value === 0 ? '' : value.toString()
-  );
+  const { inputValue, handleChange, handleBlur } = useNumericInput(value, onChange);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setInputValue(value === null || value === 0 ? '' : value.toString());
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-
-    if (val === '') {
-      setInputValue('');
-      onChange(null);
-      return;
-    }
-
-    if (!/^[0-9.,]*$/.test(val)) {
-      return;
-    }
-
-    setInputValue(val);
-
-    const numVal = parseFloat(val.replace(',', '.'));
-    if (!isNaN(numVal)) {
-      onChange(Math.max(0, numVal));
-    }
-  };
-
-  const handleBlur = (e?: React.FocusEvent<HTMLInputElement>) => {
-    if (inputValue === '' || isNaN(parseFloat(inputValue.replace(',', '.')))) {
-      setInputValue('');
-      onChange(null);
-    } else {
-      const numVal = parseFloat(inputValue.replace(',', '.'));
-      setInputValue(numVal.toString());
-    }
-
-    if (e) {
-      e.target.style.borderColor = 'var(--color-border)';
-      e.target.style.boxShadow = 'none';
-    }
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    handleBlur();
+    e.target.style.borderColor = 'var(--color-border)';
+    e.target.style.boxShadow = 'none';
   };
 
   return (
@@ -76,7 +40,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           inputMode="decimal"
           value={inputValue}
           onChange={handleChange}
-          onBlur={handleBlur}
+          onBlur={handleInputBlur}
           placeholder={placeholder}
           className="w-full px-4 py-3 rounded-lg focus:outline-none transition-all font-mono"
           style={{

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSettings, useCurrency } from '../../../shared/contexts';
-import { Card, MoneyInput, CurrencySelectorInline } from '../../../shared/components/ui';
+import { useSettings, useCurrency } from '@/shared/contexts';
+import { Card, MoneyInput, CurrencySelectorInline } from '@/shared/components/ui';
 
 interface TaxFormProps {
   grossIncome: number | null;

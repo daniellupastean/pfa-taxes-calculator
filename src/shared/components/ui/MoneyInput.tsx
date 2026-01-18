@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useNumericInput } from '@/lib';
 import { useCurrency, type Currency } from '../../contexts';
 
 interface MoneyInputProps {
@@ -25,62 +26,13 @@ export const MoneyInput: React.FC<MoneyInputProps> = ({
 
   const currencySymbols: Record<Currency, string> = {
     RON: 'RON',
-    EUR: '€',
-    USD: '$',
+    EUR: 'EUR',
+    USD: 'USD',
   };
 
-  const formatNumber = (num: number): string => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
-  };
-
-  const cleanNumber = (str: string): string => {
-    return str.replace(/[\s\u202F\u2009]/g, '');
-  };
-
-  const [inputValue, setInputValue] = useState(
-    value === null || value === 0 ? '' : formatNumber(value)
-  );
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setInputValue(value === null || value === 0 ? '' : formatNumber(value));
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-
-    if (val === '') {
-      setInputValue('');
-      onChange(null);
-      return;
-    }
-
-    if (!/^[0-9.,\s\u202F\u2009]*$/.test(val)) {
-      return;
-    }
-
-    setInputValue(val);
-    const cleanedVal = cleanNumber(val.replace(',', '.'));
-    const numVal = parseFloat(cleanedVal);
-    if (!isNaN(numVal)) {
-      onChange(Math.max(0, numVal));
-    }
-  };
-
-  const handleBlur = (e?: React.FocusEvent<HTMLInputElement>) => {
-    const cleanedVal = cleanNumber(inputValue.replace(',', '.'));
-    if (inputValue === '' || isNaN(parseFloat(cleanedVal))) {
-      setInputValue('');
-      onChange(null);
-    } else {
-      const numVal = parseFloat(cleanedVal);
-      setInputValue(formatNumber(numVal));
-    }
-
-    if (e) {
-      // styles handled by Tailwind classes now
-    }
-  };
+  const { inputValue, handleChange, handleBlur } = useNumericInput(value, onChange, {
+    formatThousands: true,
+  });
 
   return (
     <div className="mb-5">

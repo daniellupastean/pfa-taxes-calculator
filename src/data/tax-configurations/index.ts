@@ -31,3 +31,52 @@ export function getTaxRulesForYear(year: number): TaxRules {
 }
 
 export { rules2024, rules2025, rules2026, rules2027 };
+
+export interface AdvancedConfig {
+  customMinWage: number;
+  customCasThreshold1: number;
+  customCasThreshold2: number;
+  customCassMinThreshold: number;
+  customCassMaxCap: number;
+}
+
+const defaultAdvancedConfigByYear: Record<number, AdvancedConfig> = {
+  2024: {
+    customMinWage: 3700,
+    customCasThreshold1: 12,
+    customCasThreshold2: 24,
+    customCassMinThreshold: 6,
+    customCassMaxCap: 72,
+  },
+  2025: {
+    customMinWage: 4050,
+    customCasThreshold1: 12,
+    customCasThreshold2: 24,
+    customCassMinThreshold: 6,
+    customCassMaxCap: 72,
+  },
+  2026: {
+    customMinWage: 4050,
+    customCasThreshold1: 12,
+    customCasThreshold2: 24,
+    customCassMinThreshold: 6,
+    customCassMaxCap: 72,
+  },
+  2027: {
+    customMinWage: 4325,
+    customCasThreshold1: 12,
+    customCasThreshold2: 24,
+    customCassMinThreshold: 6,
+    customCassMaxCap: 72,
+  },
+};
+
+export function getDefaultAdvancedConfig(year: number): AdvancedConfig {
+  const config = defaultAdvancedConfigByYear[year];
+  if (!config) {
+    throw new Error(
+      `No default advanced config available for year ${year}. Available years: ${Object.keys(defaultAdvancedConfigByYear).join(', ')}`
+    );
+  }
+  return config;
+}

@@ -1,10 +1,10 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers, Upload, Trash2, Lightbulb, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import type { PlainTaxResult } from '../../../domain/tax/models';
-import type { SavedScenario } from '../../../lib/storage';
-import { loadScenarios, addScenario, removeScenario } from '../../../lib/storage';
-import { formatLeiRounded, formatPercent } from '../../../lib/format';
+import type { PlainTaxResult } from '@/domain/tax/models';
+import type { SavedScenario } from '@/lib/storage';
+import { loadScenarios, addScenario, removeScenario } from '@/lib/storage';
+import { formatLeiRounded, formatPercent } from '@/lib/format';
 
 interface ScenariosPanelProps {
   currentResult: PlainTaxResult | null;
@@ -66,27 +66,21 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
   };
 
   return (
-    <div
-      className="rounded-xl p-6 border-glow card-hover animate-fade-up"
-      style={{ backgroundColor: 'var(--color-panel)', border: '1px solid var(--color-border)' }}
-    >
+    <div className="rounded-xl p-6 border-glow card-hover animate-fade-up bg-panel border border-border">
       {/* Header cu descriere */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <Layers size={24} style={{ color: 'var(--color-accent-primary)' }} />
+          <Layers size={24} className="text-accent-primary" />
           <h2 className="text-2xl font-bold gradient-text">{t('home.scenarios.title')}</h2>
         </div>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-sm leading-relaxed text-text-secondary">
           {t('home.scenarios.description')}
         </p>
       </div>
 
       {/* Salvare scenariu curent */}
       <div className="mb-6">
-        <label
-          className="block text-sm font-medium mb-2"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+        <label className="block text-sm font-medium mb-2 text-text-secondary">
           {t('home.scenarios.saveLabel')}
         </label>
         <div className="flex gap-3">
@@ -95,66 +89,29 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
             value={scenarioName}
             onChange={(e) => setScenarioName(e.target.value)}
             placeholder={t('home.scenarios.namePlaceholder')}
-            className="flex-1 px-4 py-2.5 rounded-lg focus:outline-none transition-all"
-            style={{
-              border: '1px solid var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-              color: 'var(--color-text-primary)',
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-accent-primary)';
-              e.target.style.boxShadow = '0 0 0 2px rgba(251, 191, 36, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'var(--color-border)';
-              e.target.style.boxShadow = 'none';
-            }}
+            className="flex-1 px-4 py-2.5 rounded-lg focus:outline-none transition-all border border-border bg-surface text-text-primary focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/10"
           />
           <button
             onClick={handleAddScenario}
             disabled={!currentResult || !scenarioName.trim()}
-            className="px-5 py-2.5 rounded-lg font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{
-              backgroundColor: 'var(--color-accent-primary)',
-              color: '#000',
-              cursor: !currentResult || !scenarioName.trim() ? 'not-allowed' : 'pointer',
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = 'var(--color-accent-secondary)';
-                e.currentTarget.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.3)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--color-accent-primary)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            className="px-5 py-2.5 rounded-lg font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-accent-primary text-black hover:bg-accent-secondary hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] cursor-pointer"
           >
             {t('home.scenarios.saveButton')}
           </button>
         </div>
-        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-xs mt-2 text-text-muted">
           {t('home.scenarios.maxScenariosNote', { count: 10 })}
         </p>
       </div>
 
       {/* Empty state */}
       {state.scenarios.length === 0 && (
-        <div
-          className="rounded-lg p-8 text-center"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            border: '1px dashed var(--color-border)',
-          }}
-        >
-          <Lightbulb
-            size={48}
-            style={{ color: 'var(--color-accent-primary)', margin: '0 auto 16px' }}
-          />
-          <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+        <div className="rounded-lg p-8 text-center bg-surface border border-dashed border-border">
+          <Lightbulb size={48} className="text-accent-primary mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2 text-text-primary">
             {t('home.scenarios.emptyState.title')}
           </h3>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm text-text-secondary">
             {t('home.scenarios.emptyState.description')}
           </p>
         </div>
@@ -162,52 +119,31 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
 
       {/* Tabel scenarii */}
       {state.scenarios.length > 0 && (
-        <div
-          className="overflow-x-auto rounded-lg"
-          style={{ border: '1px solid var(--color-border)' }}
-        >
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="min-w-full">
-            <thead style={{ backgroundColor: 'var(--color-surface)' }}>
+            <thead className="bg-surface">
               <tr>
-                <th
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.scenario')}
                 </th>
-                <th
-                  className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.grossIncome')}
                 </th>
-                <th
-                  className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.netIncome')}
                 </th>
-                <th
-                  className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.totalTaxes')}
                 </th>
-                <th
-                  className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.effectiveRate')}
                 </th>
-                <th
-                  className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
+                <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-text-muted">
                   {t('home.scenarios.table.actions')}
                 </th>
               </tr>
             </thead>
-            <tbody style={{ backgroundColor: 'var(--color-panel)' }}>
+            <tbody className="bg-panel">
               {state.scenarios.map((scenario, index) => {
                 const currentTotal = currentResult?.breakdown.total ?? 0;
                 const scenarioTotal = scenario.result.breakdown.total;
@@ -218,32 +154,18 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                 return (
                   <tr
                     key={scenario.id}
-                    className="transition-colors"
-                    style={{
-                      borderTop: index > 0 ? '1px solid var(--color-border)' : 'none',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(251, 191, 36, 0.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }}
+                    className={`transition-colors hover:bg-accent-primary/5 ${index > 0 ? 'border-t border-border' : ''}`}
                   >
-                    <td
-                      className="px-4 py-3 text-sm font-medium"
-                      style={{ color: 'var(--color-text-primary)' }}
-                    >
+                    <td className="px-4 py-3 text-sm font-medium text-text-primary">
                       <div className="flex items-center gap-2">
                         {scenario.name}
                         {currentResult && diff !== 0 && diffPercent && (
                           <div
-                            className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold"
-                            style={{
-                              backgroundColor:
-                                diff > 0 ? 'rgba(255, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                              color: diff > 0 ? '#ff4444' : '#10b981',
-                              border: `1px solid ${diff > 0 ? 'rgba(255, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-                            }}
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold ${
+                              diff > 0
+                                ? 'bg-danger/10 text-danger border border-danger/30'
+                                : 'bg-success/10 text-success border border-success/30'
+                            }`}
                           >
                             {diff > 0 ? (
                               <TrendingUp size={10} />
@@ -257,28 +179,16 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                         )}
                       </div>
                     </td>
-                    <td
-                      className="px-4 py-3 text-sm text-right font-mono"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
+                    <td className="px-4 py-3 text-sm text-right font-mono text-text-secondary">
                       {formatLeiRounded(scenario.result.input.grossIncome)}
                     </td>
-                    <td
-                      className="px-4 py-3 text-sm text-right font-mono font-semibold"
-                      style={{ color: '#10b981' }}
-                    >
+                    <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-success">
                       {formatLeiRounded(scenario.result.breakdown.netIncome)}
                     </td>
-                    <td
-                      className="px-4 py-3 text-sm text-right font-mono font-semibold"
-                      style={{ color: '#ff4444' }}
-                    >
+                    <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-danger">
                       {formatLeiRounded(scenario.result.breakdown.total)}
                     </td>
-                    <td
-                      className="px-4 py-3 text-sm text-right font-mono font-semibold"
-                      style={{ color: 'var(--color-accent-electric)' }}
-                    >
+                    <td className="px-4 py-3 text-sm text-right font-mono font-semibold text-accent-electric">
                       {scenario.result.breakdown.effectiveRate !== null
                         ? formatPercent(scenario.result.breakdown.effectiveRate)
                         : '-'}
@@ -287,42 +197,14 @@ export const ScenariosPanel: React.FC<ScenariosPanelProps> = ({
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => onLoadScenario(scenario.result)}
-                          className="p-2 rounded-lg transition-all"
-                          style={{
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            color: '#10b981',
-                            border: '1px solid rgba(16, 185, 129, 0.3)',
-                            cursor: 'pointer',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
-                            e.currentTarget.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }}
+                          className="p-2 rounded-lg transition-all bg-success/10 text-success border border-success/30 cursor-pointer hover:bg-success/20 hover:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
                           title={t('home.scenarios.actions.load')}
                         >
                           <Upload size={16} />
                         </button>
                         <button
                           onClick={() => handleRemoveScenario(scenario.id)}
-                          className="p-2 rounded-lg transition-all"
-                          style={{
-                            backgroundColor: 'rgba(255, 68, 68, 0.1)',
-                            color: '#ff4444',
-                            border: '1px solid rgba(255, 68, 68, 0.3)',
-                            cursor: 'pointer',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.2)';
-                            e.currentTarget.style.boxShadow = '0 0 10px rgba(255, 68, 68, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }}
+                          className="p-2 rounded-lg transition-all bg-danger/10 text-danger border border-danger/30 cursor-pointer hover:bg-danger/20 hover:shadow-[0_0_10px_rgba(255,68,68,0.2)]"
                           title={t('home.scenarios.actions.delete')}
                         >
                           <Trash2 size={16} />

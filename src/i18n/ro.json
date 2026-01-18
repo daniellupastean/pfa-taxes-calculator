@@ -89,8 +89,8 @@
         "tooltip": "Suma totală plătită către stat"
       },
       "netAfterTaxes": {
-        "label": "Rămâne în buzunar",
-        "tooltip": "Venitul net după toate taxele și contribuțiile",
+        "label": "Venit disponibil",
+        "tooltip": "Venitul disponibil după toate taxele și contribuțiile",
         "monthlyDescription": "Venit disponibil / 12 luni",
         "annualDescription": "Venit brut - Total taxe"
       },

@@ -1,9 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { CalculatorPage } from '../features/calculator/CalculatorPage';
-import { SettingsPage } from '../features/settings/settings-page';
-import { BlogPage } from '../features/blog/BlogPage';
-import { BlogPostPage } from '../features/blog/BlogPostPage';
+import { CalculatorPage, SettingsPage, BlogPage, BlogPostPage } from '@/features';
 
 const AppLayout: React.FC = () => {
   return (

@@ -10,10 +10,10 @@ src/
 ├── features/               # Feature modules (isolated, self-contained)
 ├── shared/                 # Shared resources (reusable across features)
 ├── domain/                 # Business logic (pure functions, no UI)
-├── tax-rules/              # Tax rules by year (2024-2027)
+├── data/                   # Static data & tax configurations by year
 ├── i18n/                   # Internationalization (ro, en)
 ├── lib/                    # Utility functions
-├── data/                   # Static data
+├── services/               # External services (API calls)
 └── styles/                 # Global styles
 ```
 

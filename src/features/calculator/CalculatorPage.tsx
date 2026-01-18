@@ -2,9 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Settings, BookOpen } from 'lucide-react';
-import { TopNavigation, Footer } from '../../shared/components/layout';
-import { IconButton } from '../../shared/components/ui';
-import { TaxForm, ResultsCard, TaxRateChart, ScenariosPanel } from './components';
+import { TopNavigation, Footer } from '@/shared/components/layout';
+import { IconButton } from '@/shared/components/ui';
+import { TaxForm, ResultsCard, ScenariosPanel } from './components';
+import { TaxRateChart } from './chart';
 import { useTaxCalculator } from './hooks/useTaxCalculator';
 
 export const CalculatorPage: React.FC = () => {

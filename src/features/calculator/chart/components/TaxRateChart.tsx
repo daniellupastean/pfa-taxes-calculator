@@ -1,19 +1,22 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TaxCalculationService, TaxInput } from '../../../domain';
-import { getTaxRulesForYear } from '../../../data/tax-configurations';
-import type { PlainTaxInput, PlainTaxResult } from '../../../domain/tax/models';
+import { getTaxRulesForYear } from '@/data/tax-configurations';
+import { TaxCalculationService, TaxInput } from '@/domain';
+import type { PlainTaxInput, PlainTaxResult } from '@/domain/tax/models';
+import { CurrencySelectorInline } from '@/shared/components/ui';
 import {
-  useSettings,
-  useCurrency,
   useAdvancedConfig,
+  useCurrency,
+  useSettings,
   type Currency,
-} from '../../../shared/contexts';
-import { CurrencySelectorInline } from '../../../shared/components/ui';
-import { useTaxChartData, type ChartDataPoint } from '../hooks/useTaxChartData';
-import { useTaxChartScale } from '../hooks/useTaxChartScale';
-import { ChartTooltip } from './ChartTooltip';
+} from '@/shared/contexts';
+import { useTaxChartData, useTaxChartScale } from '../hooks';
+import type { HoveredDataPoint, HoveredThreshold } from '../types';
+import { ChartAxes } from './ChartAxes';
+import { ChartCurrentPoint } from './ChartCurrentPoint';
 import { ChartThresholdLine } from './ChartThresholdLine';
+import { ChartThresholdTooltip } from './ChartThresholdTooltip';
+import { ChartTooltip } from './ChartTooltip';
 import { ChartZoneBackground } from './ChartZoneBackground';
 
 interface TaxRateChartProps {
@@ -21,6 +24,8 @@ interface TaxRateChartProps {
 }
 
 export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
   const { t } = useTranslation();
   const { selectedYear } = useSettings();
   const { convertFromRON, formatCurrency } = useCurrency();
@@ -31,41 +36,35 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     customCassMinThreshold,
     customCassMaxCap,
   } = useAdvancedConfig();
-
   const taxService = useMemo(() => new TaxCalculationService(), []);
-  const [chartCurrency, setChartCurrency] = useState<Currency>('RON');
-  const [hoveredThreshold, setHoveredThreshold] = useState<{
-    type: 'CASS' | 'CAS';
-    value: number;
-    label: string;
-    x: number;
-  } | null>(null);
-  const [hoveredDataPoint, setHoveredDataPoint] = useState<{
-    point: ChartDataPoint;
-    x: number;
-    y: number;
-    cssX: number;
-    cssY: number;
-  } | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const currentRules = getTaxRulesForYear(selectedYear);
-
-  const thresholds = useMemo(() => ({
-    cass: {
-      minThreshold: customCassMinThreshold * customMinWage,
-      maxCap: customCassMaxCap * customMinWage,
-    },
-    cas: {
-      threshold1: customCasThreshold1 * customMinWage,
-      threshold2: customCasThreshold2 * customMinWage,
-    },
-  }), [customMinWage, customCasThreshold1, customCasThreshold2, customCassMinThreshold, customCassMaxCap]);
-
+  const currentRules = useMemo(() => getTaxRulesForYear(selectedYear), [selectedYear]);
+  const thresholds = useMemo(
+    () => ({
+      cass: {
+        minThreshold: currentRules.cassThresholds[0] * currentRules.minimumWageMonthly,
+        maxCap: currentRules.cassMaxCap * currentRules.minimumWageMonthly,
+      },
+      cas: {
+        threshold1: currentRules.casThresholds[0] * currentRules.minimumWageMonthly,
+        threshold2: currentRules.casThresholds[1] * currentRules.minimumWageMonthly,
+      },
+    }),
+    [currentRules]
+  );
+  const baseMaxIncome = useMemo(() => {
+    const allThresholds = [
+      thresholds.cass.minThreshold,
+      thresholds.cass.maxCap,
+      thresholds.cas.threshold1,
+      thresholds.cas.threshold2,
+    ];
+    return Math.max(...allThresholds) * 2;
+  }, [thresholds]);
   const { maxIncome } = useTaxChartScale({
     currentIncome: currentInput.grossIncome,
+    defaultMaxIncome: baseMaxIncome,
   });
-
   const chartData = useTaxChartData({
     currentInput,
     currentRules,
@@ -78,6 +77,29 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     customCassMaxCap,
     taxService,
   });
+  const [hoveredDataPoint, setHoveredDataPoint] = useState<HoveredDataPoint | null>(null);
+  const [chartCurrency, setChartCurrency] = useState<Currency>('RON');
+  const [hoveredThreshold, setHoveredThreshold] = useState<HoveredThreshold | null>(null);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const updateWidth = () => {
+      setContainerWidth(element.getBoundingClientRect().width);
+    };
+
+    updateWidth();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => updateWidth());
+      observer.observe(element);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const currentResult = useMemo<PlainTaxResult>(() => {
     const taxInput = TaxInput.create({
@@ -90,14 +112,25 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
       },
     });
     return taxService.calculate(taxInput, currentRules).toPlainObject();
-  }, [currentInput, currentRules, customMinWage, customCasThreshold1, customCasThreshold2, customCassMinThreshold, customCassMaxCap, taxService]);
+  }, [
+    currentInput,
+    currentRules,
+    customMinWage,
+    customCasThreshold1,
+    customCasThreshold2,
+    customCassMinThreshold,
+    customCassMaxCap,
+    taxService,
+  ]);
 
-  const currentEffectiveRate = currentInput.grossIncome > 0
-    ? (currentResult.breakdown.total / currentInput.grossIncome) * 100
-    : 0;
+  const currentEffectiveRate =
+    currentInput.grossIncome > 0
+      ? (currentResult.breakdown.total / currentInput.grossIncome) * 100
+      : 0;
 
   const width = 900;
   const height = 600;
+  const effectiveContainerWidth = containerWidth || width;
   const padding = { top: 40, right: 60, bottom: 70, left: 70 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
@@ -106,7 +139,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     let max = 60; // Default visualization limit
 
     // Only scale up if the CURRENT rate is higher than default.
-    // We intentionally ignore spikes in chartData (e.g. at low income) 
+    // We intentionally ignore spikes in chartData (e.g. at low income)
     // to keep the chart readable for the relevant range.
     if (currentEffectiveRate > max) {
       max = currentEffectiveRate;
@@ -118,11 +151,19 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     return Math.ceil(max / 10) * 10;
   }, [currentEffectiveRate]);
 
-  const scaleX = useCallback((incomeRON: number) => (incomeRON / maxIncome) * chartWidth, [maxIncome, chartWidth]);
-  const scaleY = useCallback((rate: number) => chartHeight - (rate / maxRate) * chartHeight, [chartHeight, maxRate]);
+  const scaleX = useCallback(
+    (incomeRON: number) => (incomeRON / maxIncome) * chartWidth,
+    [maxIncome, chartWidth]
+  );
+  const scaleY = useCallback(
+    (rate: number) => chartHeight - (rate / maxRate) * chartHeight,
+    [chartHeight, maxRate]
+  );
 
   const linePath = chartData
-    .map((point, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(point.income)} ${scaleY(point.effectiveRate)}`)
+    .map(
+      (point, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(point.income)} ${scaleY(point.effectiveRate)}`
+    )
     .join(' ');
 
   const areaPath = `${linePath} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
@@ -141,23 +182,25 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
     const chartX = localPt.x - padding.left;
     const chartY = localPt.y - padding.top;
 
-    if (chartX < 0 || chartX > chartWidth) {
+    if (chartX < 0 || chartX > chartWidth || chartY < 0 || chartY > chartHeight) {
       setHoveredDataPoint(null);
       return;
     }
 
     const incomeThreshold = (chartX / chartWidth) * maxIncome;
     const closestPoint = chartData.reduce((prev, curr) =>
-      Math.abs(curr.income - incomeThreshold) < Math.abs(prev.income - incomeThreshold) ? curr : prev
+      Math.abs(curr.income - incomeThreshold) < Math.abs(prev.income - incomeThreshold)
+        ? curr
+        : prev
     );
 
     const pointX = scaleX(closestPoint.income);
     const pointY = scaleY(closestPoint.effectiveRate);
 
-    // Euclidean distance check to ensure we are close to the line (e.g. within 30px)
+    // Euclidean distance check to ensure we are close to the line (e.g. within 20px)
     const dist = Math.sqrt(Math.pow(chartX - pointX, 2) + Math.pow(chartY - pointY, 2));
 
-    if (dist > 50) { // 50px threshold for easier grabbing but strict enough
+    if (dist > 15) {
       setHoveredDataPoint(null);
       return;
     }
@@ -169,20 +212,53 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
 
     setHoveredDataPoint({
       point: closestPoint,
-      x: localPt.x, // SVG x for circle
-      y: localPt.y, // SVG y for circle
-      cssX,         // CSS x for tooltip
-      cssY,         // CSS y for tooltip
+      x: pointX + padding.left, // SVG x for circle
+      y: pointY + padding.top, // SVG y for circle
+      cssX, // CSS x for tooltip
+      cssY, // CSS y for tooltip
     });
   };
 
-  const zones = useMemo(() => [
-    { start: 0, end: thresholds.cass.minThreshold, color: '#10b981', opacity: 0.1, label: t('home.chart.zones.cassOptional') },
-    { start: thresholds.cass.minThreshold, end: thresholds.cas.threshold1, color: '#34d399', opacity: 0.2, label: t('home.chart.zones.cassRequired') },
-    { start: thresholds.cas.threshold1, end: thresholds.cas.threshold2, color: '#fbbf24', opacity: 0.2, label: t('home.chart.zones.casRequired') },
-    { start: thresholds.cas.threshold2, end: thresholds.cass.maxCap, color: '#f87171', opacity: 0.2, label: t('home.chart.zones.cassFull') },
-    { start: thresholds.cass.maxCap, end: maxIncome, color: '#10b981', opacity: 0.1, label: t('home.chart.zones.cassCapped') },
-  ], [thresholds, maxIncome, t]);
+  const zones = useMemo(
+    () => [
+      {
+        start: 0,
+        end: thresholds.cass.minThreshold,
+        color: '#10b981',
+        opacity: 0.1,
+        label: t('home.chart.zones.cassOptional'),
+      },
+      {
+        start: thresholds.cass.minThreshold,
+        end: thresholds.cas.threshold1,
+        color: '#34d399',
+        opacity: 0.2,
+        label: t('home.chart.zones.cassRequired'),
+      },
+      {
+        start: thresholds.cas.threshold1,
+        end: thresholds.cas.threshold2,
+        color: '#fbbf24',
+        opacity: 0.2,
+        label: t('home.chart.zones.casRequired'),
+      },
+      {
+        start: thresholds.cas.threshold2,
+        end: thresholds.cass.maxCap,
+        color: '#f87171',
+        opacity: 0.2,
+        label: t('home.chart.zones.cassFull'),
+      },
+      {
+        start: thresholds.cass.maxCap,
+        end: maxIncome,
+        color: '#10b981',
+        opacity: 0.1,
+        label: t('home.chart.zones.cassCapped'),
+      },
+    ],
+    [thresholds, maxIncome, t]
+  );
 
   return (
     <div
@@ -193,22 +269,20 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
       }}
     >
       {/* Standard Header: Consistent with TaxForm */}
-      < div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-6 gap-4" >
+      <div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold gradient-text">{t('home.chart.title')}</h2>
 
         <div className="flex flex-col items-end gap-2 w-full md:w-auto">
           <CurrencySelectorInline value={chartCurrency} onChange={setChartCurrency} />
         </div>
-
-
-
-      </div >
+      </div>
 
       <div ref={containerRef} className="relative w-full overflow-visible">
-
         <div className="relative w-full overflow-visible">
           <svg
-            className="w-full h-auto block select-none"
+            className={`w-full h-auto block select-none ${
+              hoveredThreshold || hoveredDataPoint ? 'cursor-pointer' : 'cursor-default'
+            }`}
             viewBox={`0 0 ${width} ${height}`}
             preserveAspectRatio="xMidYMid meet"
             onMouseMove={handleMouseMove}
@@ -232,41 +306,69 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
               </g>
 
               {/* Grid lines Y */}
-              {Array.from({ length: Math.floor(maxRate / 10) + 1 }, (_, i) => i * 10).map((rate) => (
-                <g key={rate}>
-                  <line
-                    x1={0} y1={scaleY(rate)} x2={chartWidth} y2={scaleY(rate)}
-                    stroke="var(--color-border)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"
-                  />
-                  <text
-                    x={-10} y={scaleY(rate)} textAnchor="end" dominantBaseline="middle"
-                    fill="var(--color-text-muted)" fontSize="14" fontWeight="500"
-                  >
-                    {rate}%
-                  </text>
-                </g>
-              ))}
+              {Array.from({ length: Math.floor(maxRate / 10) + 1 }, (_, i) => i * 10).map(
+                (rate) => (
+                  <g key={rate}>
+                    <line
+                      x1={0}
+                      y1={scaleY(rate)}
+                      x2={chartWidth}
+                      y2={scaleY(rate)}
+                      stroke="var(--color-border)"
+                      strokeWidth="1"
+                      strokeDasharray="4 4"
+                      opacity="0.3"
+                    />
+                    <text
+                      x={-10}
+                      y={scaleY(rate)}
+                      textAnchor="end"
+                      dominantBaseline="middle"
+                      fill="var(--color-text-muted)"
+                      fontSize="14"
+                      fontWeight="500"
+                    >
+                      {rate}%
+                    </text>
+                  </g>
+                )
+              )}
 
               {/* Grid lines X */}
               {Array.from({ length: 6 }, (_, i) => (i * maxIncome) / 5).map((incomeRON) => (
                 <g key={incomeRON}>
                   <line
-                    x1={scaleX(incomeRON)} y1={0} x2={scaleX(incomeRON)} y2={chartHeight}
-                    stroke="var(--color-border)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3"
+                    x1={scaleX(incomeRON)}
+                    y1={0}
+                    x2={scaleX(incomeRON)}
+                    y2={chartHeight}
+                    stroke="var(--color-border)"
+                    strokeWidth="1"
+                    strokeDasharray="4 4"
+                    opacity="0.3"
                   />
                   <text
-                    x={scaleX(incomeRON)} y={chartHeight + 25} textAnchor="middle"
-                    fill="var(--color-text-muted)" fontSize="14" fontWeight="500"
+                    x={scaleX(incomeRON)}
+                    y={chartHeight + 25}
+                    textAnchor="middle"
+                    fill="var(--color-text-muted)"
+                    fontSize="14"
+                    fontWeight="500"
                   >
-                    {formatCurrency(convertFromRON(incomeRON, chartCurrency), chartCurrency, { compact: true })}
+                    {formatCurrency(convertFromRON(incomeRON, chartCurrency), chartCurrency, {
+                      compact: true,
+                    })}
                   </text>
                 </g>
               ))}
 
-
-
               {/* PFA Area & Line */}
-              <path d={areaPath} fill="url(#areaGradient)" clipPath="url(#chartClip)" opacity="0.6" />
+              <path
+                d={areaPath}
+                fill="url(#areaGradient)"
+                clipPath="url(#chartClip)"
+                opacity="0.6"
+              />
               <path
                 d={linePath}
                 fill="none"
@@ -276,8 +378,16 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 strokeLinejoin="round"
                 clipPath="url(#chartClip)"
               />
-
-
+              {/* Interactive area for tooltip with pointer cursor */}
+              <path
+                d={linePath}
+                fill="none"
+                strokeWidth="20"
+                stroke="transparent"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                pointerEvents="stroke"
+              />
 
               {/* Threshold Lines */}
               <ChartThresholdLine
@@ -290,7 +400,6 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 type="CASS"
                 onHover={setHoveredThreshold}
                 padding={padding}
-                t={t}
               />
               <ChartThresholdLine
                 x={scaleX(thresholds.cass.maxCap)}
@@ -302,7 +411,6 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 type="CASS"
                 onHover={setHoveredThreshold}
                 padding={padding}
-                t={t}
               />
               <ChartThresholdLine
                 x={scaleX(thresholds.cas.threshold1)}
@@ -314,7 +422,6 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 type="CAS"
                 onHover={setHoveredThreshold}
                 padding={padding}
-                t={t}
               />
               <ChartThresholdLine
                 x={scaleX(thresholds.cas.threshold2)}
@@ -326,45 +433,17 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 type="CAS"
                 onHover={setHoveredThreshold}
                 padding={padding}
-                t={t}
               />
 
               {/* Current point */}
-              {currentInput.grossIncome > 0 && currentInput.grossIncome <= maxIncome && (
-                <g className="transition-all duration-300">
-                  <line
-                    x1={currentX} y1={chartHeight} x2={currentX} y2={currentY}
-                    stroke="var(--color-accent-secondary)" strokeWidth="2" strokeDasharray="4 4"
-                  />
-                  <circle
-                    cx={currentX} cy={currentY} r="6"
-                    fill="var(--color-accent-primary)" stroke="var(--color-surface)" strokeWidth="3"
-                    className="animate-pulse-slow"
-                  />
-                  <rect
-                    x={currentX - 45}
-                    y={currentY - 55} // Higher up
-                    width="90"
-                    height="40" // Taller
-                    rx="10"
-                    fill="var(--color-surface)"
-                    stroke="var(--color-border)"
-                    strokeWidth="2"
-                    className="shadow-lg"
-                  />
-                  <text
-                    x={currentX}
-                    y={currentY - 33} // Centered in rect
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    className="text-xl"
-                    fill="var(--color-text-primary)"
-                    style={{ fontWeight: 500 }}
-                  >
-                    {(Math.round(currentEffectiveRate * 10) / 10).toFixed(1)}%
-                  </text>
-                </g>
-              )}
+              <ChartCurrentPoint
+                currentX={currentX}
+                currentY={currentY}
+                chartHeight={chartHeight}
+                currentEffectiveRate={currentEffectiveRate}
+                maxIncome={maxIncome}
+                grossIncome={currentInput.grossIncome}
+              />
 
               {/* Hovered point indicator */}
               {hoveredDataPoint && (
@@ -378,37 +457,21 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
               )}
 
               {/* Axes */}
-              <line x1={0} y1={chartHeight} x2={chartWidth} y2={chartHeight} stroke="var(--color-text-secondary)" strokeWidth="2" />
-              <line x1={0} y1={0} x2={0} y2={chartHeight} stroke="var(--color-text-secondary)" strokeWidth="2" />
+              <ChartAxes chartWidth={chartWidth} chartHeight={chartHeight} />
             </g>
           </svg>
 
           {/* Threshold Tooltip */}
           {hoveredThreshold && (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${(hoveredThreshold.x / width) * 100}%`,
-                top: '10px',
-                transform: 'translateX(-50%)',
-                pointerEvents: 'none',
-                zIndex: 30,
-              }}
-            >
-              <div
-                className="px-4 py-2 rounded-lg shadow-2xl text-sm whitespace-nowrap bg-opacity-90 backdrop-blur-md"
-                style={{
-                  backgroundColor: 'var(--color-surface)',
-                  border: `2px solid ${hoveredThreshold.type === 'CASS' ? '#10b981' : '#f59e0b'}`,
-                  color: 'var(--color-text-primary)',
-                }}
-              >
-                <div className="font-bold text-sm uppercase tracking-wider">{hoveredThreshold.label}</div>
-                <div className="text-base font-mono mt-1">
-                  {formatCurrency(convertFromRON(hoveredThreshold.value, chartCurrency), chartCurrency)}
-                </div>
-              </div>
-            </div>
+            <ChartThresholdTooltip
+              hoveredThreshold={hoveredThreshold}
+              width={width}
+              effectiveContainerWidth={effectiveContainerWidth}
+              formatCurrency={formatCurrency}
+              convertFromRON={convertFromRON}
+              chartCurrency={chartCurrency}
+              t={t}
+            />
           )}
 
           {/* Data Point Tooltip */}
@@ -416,12 +479,11 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
             <ChartTooltip
               income={hoveredDataPoint.point.income}
               effectiveRate={hoveredDataPoint.point.effectiveRate}
-              total={hoveredDataPoint.point.total}
               formatCurrency={formatCurrency}
               currency={chartCurrency}
               x={hoveredDataPoint.cssX}
               y={hoveredDataPoint.cssY}
-              containerWidth={containerRef.current?.getBoundingClientRect().width || 0}
+              containerWidth={effectiveContainerWidth}
             />
           )}
         </div>
@@ -438,14 +500,22 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
                 color: 'var(--color-text-muted)',
               }}
             >
-              <span className="font-bold" style={{ color: '#10b981' }}>{t('home.chart.note.prefix')}</span>{' '}
+              <span className="font-bold" style={{ color: '#10b981' }}>
+                {t('home.chart.note.prefix')}
+              </span>{' '}
               {t('home.chart.note.text', {
-                amount: formatCurrency(convertFromRON(thresholds.cass.minThreshold, chartCurrency), chartCurrency),
-                cassMin: formatCurrency(convertFromRON(thresholds.cass.minThreshold * 0.1, chartCurrency), chartCurrency),
+                amount: formatCurrency(
+                  convertFromRON(thresholds.cass.minThreshold, chartCurrency),
+                  chartCurrency
+                ),
+                cassMin: formatCurrency(
+                  convertFromRON(thresholds.cass.minThreshold * 0.1, chartCurrency),
+                  chartCurrency
+                ),
               })}
             </div>
           )}
       </div>
-    </div >
+    </div>
   );
 };

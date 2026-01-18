@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Currency } from '../../contexts/currency-context';
+import type { Currency } from '../../contexts';
 import { ToggleInline } from './ToggleInline';
 
 interface CurrencySelectorInlineProps {

@@ -1,41 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { fetchExchangeRates } from '../../services/exchange-rates';
-
-export type Currency = 'RON' | 'EUR' | 'USD';
-
-export interface CurrencyRates {
-  RON: number;
-  EUR: number;
-  USD: number;
-}
-
-interface CurrencyContextType {
-  inputCurrency: Currency;
-  resultCurrency: Currency;
-  setInputCurrency: (currency: Currency) => void;
-  setResultCurrency: (currency: Currency) => void;
-  rates: CurrencyRates;
-  updateRates: (rates: Partial<CurrencyRates>) => void;
-  convertFromRON: (amount: number, targetCurrency: Currency) => number;
-  convertToRON: (amount: number, sourceCurrency: Currency) => number;
-  convertBetweenCurrencies: (
-    amount: number,
-    fromCurrency: Currency,
-    toCurrency: Currency
-  ) => number;
-  formatCurrency: (amount: number, currency: Currency, options?: { compact?: boolean }) => string;
-  isLoadingRates: boolean;
-  lastUpdate: string | null;
-  refreshRates: () => Promise<void>;
-}
-
-const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
-
-const INPUT_CURRENCY_STORAGE_KEY = 'pfa-calculator-input-currency';
-const RESULT_CURRENCY_STORAGE_KEY = 'pfa-calculator-result-currency';
-const RATES_STORAGE_KEY = 'pfa-calculator-rates';
-const RATES_TIMESTAMP_KEY = 'pfa-calculator-rates-timestamp';
+import React, { useCallback, useEffect, useState } from 'react';
+import { usePersistedState, STORAGE_KEYS } from '@/lib';
+import { fetchExchangeRates, shouldUpdateRates } from '@/services/exchange-rates';
+import type { Currency, CurrencyRates } from './context';
+import { CurrencyContext } from './context';
 
 // Default exchange rates (how many RON for 1 unit of foreign currency)
 // Used only as fallback if API doesn't work
@@ -46,28 +14,26 @@ const DEFAULT_RATES: CurrencyRates = {
 };
 
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [inputCurrency, setInputCurrencyState] = useState<Currency>(() => {
-    const stored = localStorage.getItem(INPUT_CURRENCY_STORAGE_KEY);
-    return (stored as Currency) || 'RON';
-  });
+  const [inputCurrency, setInputCurrencyState] = usePersistedState<Currency>(
+    STORAGE_KEYS.INPUT_CURRENCY,
+    'RON'
+  );
 
-  const [resultCurrency, setResultCurrencyState] = useState<Currency>(() => {
-    const stored = localStorage.getItem(RESULT_CURRENCY_STORAGE_KEY);
-    return (stored as Currency) || 'RON';
-  });
+  const [resultCurrency, setResultCurrencyState] = usePersistedState<Currency>(
+    STORAGE_KEYS.RESULT_CURRENCY,
+    'RON'
+  );
 
-  const [rates, setRates] = useState<CurrencyRates>(() => {
-    const stored = localStorage.getItem(RATES_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_RATES;
-  });
+  const [rates, setRates] = usePersistedState<CurrencyRates>(STORAGE_KEYS.RATES, DEFAULT_RATES);
 
-  const [lastUpdate, setLastUpdate] = useState<string | null>(() => {
-    return localStorage.getItem(RATES_TIMESTAMP_KEY);
-  });
+  const [lastUpdate, setLastUpdate] = usePersistedState<string | null>(
+    STORAGE_KEYS.RATES_TIMESTAMP,
+    null
+  );
 
   const [isLoadingRates, setIsLoadingRates] = useState(false);
 
-  const refreshRates = async () => {
+  const refreshRates = useCallback(async () => {
     setIsLoadingRates(true);
     try {
       const newRates = await fetchExchangeRates();
@@ -78,29 +44,18 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       }));
       const currentTimestamp = new Date().toISOString();
       setLastUpdate(currentTimestamp);
-      localStorage.setItem(RATES_TIMESTAMP_KEY, currentTimestamp);
     } catch (error) {
       console.error('Failed to refresh exchange rates:', error);
     } finally {
       setIsLoadingRates(false);
     }
-  };
+  }, [setRates, setLastUpdate]);
 
   useEffect(() => {
-    refreshRates();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(INPUT_CURRENCY_STORAGE_KEY, inputCurrency);
-  }, [inputCurrency]);
-
-  useEffect(() => {
-    localStorage.setItem(RESULT_CURRENCY_STORAGE_KEY, resultCurrency);
-  }, [resultCurrency]);
-
-  useEffect(() => {
-    localStorage.setItem(RATES_STORAGE_KEY, JSON.stringify(rates));
-  }, [rates]);
+    if (shouldUpdateRates(lastUpdate)) {
+      refreshRates();
+    }
+  }, [lastUpdate, refreshRates]);
 
   const setInputCurrency = (newCurrency: Currency) => {
     setInputCurrencyState(newCurrency);
@@ -141,8 +96,8 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
   ): string => {
     const symbols: Record<Currency, string> = {
       RON: 'RON',
-      EUR: '€',
-      USD: '$',
+      EUR: 'EUR',
+      USD: 'USD',
     };
 
     if (options?.compact) {
@@ -151,19 +106,19 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
         const millions = (amount / 1000000).toFixed(1);
         return currency === 'RON'
           ? `${millions}M ${symbols[currency]}`
-          : `${symbols[currency]}${millions}M`;
+          : `${millions}M ${symbols[currency]}`;
       } else if (absAmount >= 1000) {
         const thousands = Math.round(amount / 1000);
         return currency === 'RON'
           ? `${thousands}k ${symbols[currency]}`
-          : `${symbols[currency]}${thousands}k`;
+          : `${thousands}k ${symbols[currency]}`;
       }
     }
 
     const formatted = Math.round(amount).toLocaleString('ro-RO');
     return currency === 'RON'
       ? `${formatted} ${symbols[currency]}`
-      : `${symbols[currency]}${formatted}`;
+      : `${formatted} ${symbols[currency]}`;
   };
 
   return (
@@ -187,12 +142,4 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
       {children}
     </CurrencyContext.Provider>
   );
-};
-
-export const useCurrency = () => {
-  const context = useContext(CurrencyContext);
-  if (!context) {
-    throw new Error('useCurrency must be used within CurrencyProvider');
-  }
-  return context;
 };

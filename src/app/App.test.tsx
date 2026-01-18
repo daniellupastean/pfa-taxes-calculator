@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { App } from './App';
-import { AppProviders } from '../shared/contexts';
+import { AppProviders } from '../shared/providers/AppProviders';
 import '../i18n/config';
 
 function renderApp() {

@@ -6,6 +6,7 @@ interface ChartTooltipProps {
   income: number;
   effectiveRate: number;
   formatCurrency: (amount: number, currency: Currency) => string;
+  convertFromRON: (value: number, currency: Currency) => number;
   currency: Currency;
   x: number;
   y: number;
@@ -16,6 +17,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
   income,
   effectiveRate,
   formatCurrency,
+  convertFromRON,
   currency,
   x,
   y,
@@ -65,7 +67,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
               {t('home.chart.tooltip.income')}
             </span>
             <span className="font-semibold text-sm">
-              {formatCurrency(income, currency)}
+              {formatCurrency(convertFromRON(income, currency), currency)}
             </span>
           </div>
 

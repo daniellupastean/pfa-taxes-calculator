@@ -487,6 +487,7 @@ export const TaxRateChart: React.FC<TaxRateChartProps> = ({ currentInput }) => {
               income={hoveredDataPoint.point.income}
               effectiveRate={hoveredDataPoint.point.effectiveRate}
               formatCurrency={formatCurrency}
+              convertFromRON={convertFromRON}
               currency={chartCurrency}
               x={hoveredDataPoint.cssX}
               y={hoveredDataPoint.cssY}
